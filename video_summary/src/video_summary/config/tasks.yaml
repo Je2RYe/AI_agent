@@ -1,20 +1,45 @@
 transcription_task:
   description: >
     Transcribe the video or audio from {youtube_url} into text to provide a base for further analysis.
+    Format the transcription with proper paragraphs and line breaks for better readability.
   expected_output: >
-    A full and accurate text transcription of the video.
+    A well-formatted text transcription with:
+    - Clear paragraph separation
+    - Proper line breaks for different speakers or sections
+    - Timestamps if available
+    - Clean and readable formatting
   agent: transcriber
 
 summary_task:
   description: >
-    Summarize the transcribed text to capture the main topics discussed.
+    Create a comprehensive summary of the transcribed text, organizing it into clear sections.
+    Include:
+    1. Main Topics: List the key topics discussed
+    2. Key Points: Bullet points of important information
+    3. Overall Summary: A concise overview of the content
+    4. Notable Quotes: Any significant or memorable quotes
   expected_output: >
-    A concise summary of the key topics covered in the video.
+    A structured summary containing:
+    - Main Topics section
+    - Key Points section with bullet points
+    - Overall Summary section
+    - Notable Quotes section (if applicable)
+    All sections should be clearly labeled and well-formatted.
   agent: summarizer
   
 file_write_task:
   description: >
-    Write the summary to a file
+    Write the formatted summary to a file named Video_Summary.
+    Ensure the file has:
+    - Clear section headers
+    - Proper spacing and indentation
+    - Consistent formatting throughout
+    - A clean, professional layout
   expected_output: >
-    A fully fledge summary with all information from previous task into a file named Video_Summary
+    A professionally formatted file containing:
+    - Title and date
+    - Well-structured sections
+    - Clear formatting with headers and subheaders
+    - Proper spacing and indentation
+    - Easy to read and navigate content
   agent: filewriter
