@@ -1,0 +1,5 @@
+crewai 'crewai[tools]'
+yt-dlp
+youtube-transcript-api
+python-dotenv
+git+https://github.com/openai/whisper.git
