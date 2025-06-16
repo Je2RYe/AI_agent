@@ -1,0 +1,20 @@
+transcription_task:
+  description: >
+    Transcribe the video or audio from {youtube_url} into text to provide a base for further analysis.
+  expected_output: >
+    A full and accurate text transcription of the video.
+  agent: transcriber
+
+summary_task:
+  description: >
+    Summarize the transcribed text to capture the main topics discussed.
+  expected_output: >
+    A concise summary of the key topics covered in the video.
+  agent: summarizer
+  
+file_write_task:
+  description: >
+    Write the summary to a file
+  expected_output: >
+    A fully fledge summary with all information from previous task into a file named Video_Summary
+  agent: filewriter

@@ -1,0 +1,1 @@
+The video tutorial explains how to install FFMpeg on Windows and add its path to environment variables. The process includes: downloading from the official website, extracting files to C:\FFMpeg, moving bin folder contents, adding the path to environment variables, and verifying installation in the command prompt.
