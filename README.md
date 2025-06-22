@@ -25,7 +25,8 @@ pip install -r requirement.txt
 Edit the `.env` file created by the setup script:
 ```env
 # Required: Your OpenAI API key
-OPENAI_API_KEY=your_openai_api_key_here
+MODEL=your_model
+GEMINI_API_KEY=your_gemini_api_key_here
 
 # Optional: Custom FFmpeg path (if auto-detection fails)
 # FFMPEG_PATH=/path/to/ffmpeg/bin
