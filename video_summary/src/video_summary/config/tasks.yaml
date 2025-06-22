@@ -1,6 +1,6 @@
 transcription_task:
   description: >
-    Transcribe the video or audio from {youtube_url} into text to provide a base for further analysis.
+    Transcribe the video or audio from {content} into text to provide a base for further analysis.
     Format the transcription with proper paragraphs and line breaks for better readability.
   expected_output: >
     A well-formatted text transcription with:
@@ -29,7 +29,7 @@ summary_task:
   
 file_write_task:
   description: >
-    Write the formatted summary to a file named Video_Summary.
+    Write the formatted summary to the 'Video_Summary.txt' file.
     Ensure the file has:
     - Clear section headers
     - Proper spacing and indentation

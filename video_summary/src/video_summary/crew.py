@@ -12,8 +12,50 @@ import os
 from crewai.tools import tool
 from dotenv import load_dotenv
 
-ffmpeg_bin_path = r"D:\Work\AI_agent\video_summary\ffmpeg\bin"
-os.environ["PATH"] += os.pathsep + ffmpeg_bin_path
+# Dynamic FFmpeg path detection
+def setup_ffmpeg_path():
+    """Setup FFmpeg path dynamically for different environments"""
+    # Get the directory where this script is located
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Look for ffmpeg in various possible locations
+    possible_paths = [
+        # Relative to current script (for development)
+        os.path.join(current_dir, "..", "..", "ffmpeg", "bin"),
+        # Relative to project root
+        os.path.join(current_dir, "..", "..", "..", "ffmpeg", "bin"),
+        # Environment variable
+        os.environ.get("FFMPEG_PATH"),
+        # System PATH (will be checked automatically)
+        None
+    ]
+    
+    # Try to find ffmpeg
+    for path in possible_paths:
+        if path and os.path.exists(path):
+            print(f"Found FFmpeg at: {path}")
+            os.environ["PATH"] = path + os.pathsep + os.environ.get("PATH", "")
+            return path
+    
+    # If no local ffmpeg found, check if it's in system PATH
+    try:
+        import subprocess
+        result = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
+        if result.returncode == 0:
+            print("FFmpeg found in system PATH")
+            return "system"
+    except (subprocess.SubprocessError, FileNotFoundError):
+        pass
+    
+    print("Warning: FFmpeg not found. Please ensure FFmpeg is installed and in PATH")
+    return None
+
+# Setup FFmpeg path
+ffmpeg_path = setup_ffmpeg_path()
+
+# Use default device detection (Whisper will choose the best available device)
+DEVICE = None
+print("Using default device detection for transcription")
 
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -35,12 +77,12 @@ def test_whisper_transcription(audio_file_path: str) -> str:
         print(f"Testing Whisper transcription with file: {audio_file_path}")
         print(f"File exists: {os.path.exists(audio_file_path)}")
         
-        whisper_model = whisper.load_model("small")
-        print("Whisper model loaded successfully")
+        whisper_model = whisper.load_model("small", device=DEVICE)
+        print(f"Whisper model loaded successfully")
         
         print("Starting transcription...")
         result = whisper_model.transcribe(audio_file_path)
-        print("Transcription completed successfully")
+        print(f"Transcription completed successfully")
         
         return result["text"]
     except Exception as e:
@@ -49,16 +91,17 @@ def test_whisper_transcription(audio_file_path: str) -> str:
 @tool("Audio Transcribe Tool")
 def audio_transcriber_tool(input_str: str) -> str:
     """
-    Extracts transcript from a YouTube video given its URL.
-    Uses YouTube's transcript API to get the video's transcript.
+    Extracts transcript from a YouTube video given its URL or transcribes an audio file.
+    Uses YouTube's transcript API for YouTube videos or Whisper for audio files.
 
     Parameters:
-    - input_str (str): A JSON string containing the URL of the YouTube video.
+    - input_str (str): A JSON string containing either a YouTube URL or audio file path.
 
     Returns:
-    str: The transcribed text from the YouTube video.
+    str: The transcribed text from the YouTube video or audio file.
     """
     print(f"Received input: {input_str}")
+    
     def extract_video_id(url):
         parsed_url = urllib.parse.urlparse(url)
         hostname = parsed_url.hostname.lower() if parsed_url.hostname else ''
@@ -84,45 +127,95 @@ def audio_transcriber_tool(input_str: str) -> str:
         except (NoTranscriptFound, TranscriptsDisabled, VideoUnavailable):
             return None
 
+    def is_youtube_url(text: str) -> bool:
+        """Check if the input is a YouTube URL"""
+        return 'youtube.com' in text or 'youtu.be' in text
+
     try:
         if input_str.strip().startswith('{'):
             inputs = json.loads(input_str)
-            url = inputs.get('url') or inputs.get('input_str') or inputs.get('youtube_url')
-            if url is None:
-                raise ValueError("URL is required in the input JSON.")
+            content = inputs.get('content') or inputs.get('url') or inputs.get('input_str') or inputs.get('youtube_url') or inputs.get('audio_file_path')
+            if content is None:
+                raise ValueError("Content is required in the input JSON.")
         else:
-            url = input_str.strip()
-            if not url:
-                raise ValueError("Input URL is empty.")
+            content = input_str.strip()
+            if not content:
+                raise ValueError("Input content is empty.")
 
-        # # Get transcript from YouTube
-        # youtube_transcription = get_youtube_transcription(url)
-        # if youtube_transcription:
-        #     return youtube_transcription
+        # Check if it's a YouTube URL or file path
+        if is_youtube_url(content):
+            print(f"Processing YouTube URL: {content}")
+            # Get transcript from YouTube
+            youtube_transcription = get_youtube_transcription(content)
+            if youtube_transcription:
+                return youtube_transcription
 
-        # Step 2: If no subtitles, proceed with Whisper transcription
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-            'outtmpl': 'audio_file.%(ext)s',
-            'quiet': True,
-        }
+            # If no subtitles, proceed with Whisper transcription
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+                'outtmpl': 'audio_file.%(ext)s',
+                'quiet': True,
+            }
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([content])
 
-        audio_file = "audio_file.mp3"
-        whisper_model = whisper.load_model("small")
-        result = whisper_model.transcribe(audio_file)
+            audio_file = "audio_file.mp3"
+            whisper_model = whisper.load_model("small", device=DEVICE)
+            result = whisper_model.transcribe(audio_file)
+            print(f"Transcription completed")
 
-        os.remove(audio_file)
-        return result["text"]
+            os.remove(audio_file)
+            return result["text"]
+        else:
+            # Treat as audio file path
+            print(f"Processing audio file: {content}")
+            if not os.path.exists(content):
+                return f"Error: File not found at {content}"
+            
+            whisper_model = whisper.load_model("small", device=DEVICE)
+            print(f"Whisper model loaded successfully for file transcription.")
+            
+            print("Starting transcription of file...")
+            result = whisper_model.transcribe(content)
+            print(f"File transcription completed successfully.")
+            
+            return result["text"]
+            
     except Exception as e:
         return f"Error downloading or transcribing audio: {e}"
+
+@tool("Audio File Transcribe Tool")
+def audio_file_transcriber_tool(file_path: str) -> str:
+    """
+    Transcribes an audio file to text using Whisper.
+
+    Parameters:
+    - file_path (str): The path to the audio file to be transcribed.
+
+    Returns:
+    str: The transcribed text of the audio file.
+    """
+    try:
+        print(f"Transcribing audio file: {file_path}")
+        if not os.path.exists(file_path):
+            return f"Error: File not found at {file_path}"
+        
+        whisper_model = whisper.load_model("small", device=DEVICE)
+        print(f"Whisper model loaded successfully for file transcription.")
+        
+        print("Starting transcription of file...")
+        result = whisper_model.transcribe(file_path)
+        print(f"File transcription completed successfully.")
+        
+        return result["text"]
+    except Exception as e:
+        return f"Error during file transcription: {str(e)}"
 
 @CrewBase
 class VideoSummary():
@@ -132,7 +225,7 @@ class VideoSummary():
     tasks: List[Task]
     def __init__(self):
         # Load audio transcriber tool
-        self.audio_tool = [audio_transcriber_tool]
+        self.audio_tool = [audio_transcriber_tool, audio_file_transcriber_tool]
         #summary generated
         self.summaryReport=""
     # Learn more about YAML configuration files here:
@@ -162,7 +255,7 @@ class VideoSummary():
     def filewriter(self) -> Agent:
         return Agent(
             config=self.agents_config['filewriter'],
-            tools=[FileWriterTool()],
+            tools=[FileWriterTool(file_path='Video_Summary.txt')],
             verbose=True
         )
 
@@ -200,5 +293,5 @@ class VideoSummary():
             tasks=self.tasks, # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
         )
