@@ -22,6 +22,7 @@ pip install -r requirement.txt
 ```
 
 ### 3. Configure Environment
+Move `.env` file into video_summary folder,
 Edit the `.env` file created by the setup script:
 ```env
 # Required: Your OpenAI API key
