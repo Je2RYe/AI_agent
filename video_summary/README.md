@@ -25,8 +25,10 @@ pip install -r requirement.txt
 Move `.env` file into video_summary folder,
 Edit the `.env` file created by the setup script:
 ```env
-# Required: Your OpenAI API key
-OPENAI_API_KEY=your_openai_api_key_here
+# Required: Your API key
+MODEL=your_model
+GEMINI_API_KEY=your_gemini_api_key_here
+SERPER_API_KEY=your_serper_api_key_here_'https://serper.dev/api-keys'
 
 # Optional: Custom FFmpeg path (if auto-detection fails)
 # FFMPEG_PATH=/path/to/ffmpeg/bin

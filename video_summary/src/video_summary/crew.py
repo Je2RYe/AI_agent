@@ -9,6 +9,7 @@ import json
 from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound, TranscriptsDisabled, VideoUnavailable
 import whisper
 import os
+from crewai_tools import SerperDevTool
 from crewai.tools import tool
 from dotenv import load_dotenv
 
@@ -33,7 +34,7 @@ def setup_ffmpeg_path():
     # Try to find ffmpeg
     for path in possible_paths:
         if path and os.path.exists(path):
-            print(f"Found FFmpeg at: {path}")
+            # print(f"Found FFmpeg at: {path}")
             os.environ["PATH"] = path + os.pathsep + os.environ.get("PATH", "")
             return path
     
@@ -42,12 +43,12 @@ def setup_ffmpeg_path():
         import subprocess
         result = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
         if result.returncode == 0:
-            print("FFmpeg found in system PATH")
+            # print("FFmpeg found in system PATH")
             return "system"
     except (subprocess.SubprocessError, FileNotFoundError):
         pass
     
-    print("Warning: FFmpeg not found. Please ensure FFmpeg is installed and in PATH")
+    # print("Warning: FFmpeg not found. Please ensure FFmpeg is installed and in PATH")
     return None
 
 # Setup FFmpeg path
@@ -55,7 +56,7 @@ ffmpeg_path = setup_ffmpeg_path()
 
 # Use default device detection (Whisper will choose the best available device)
 DEVICE = None
-print("Using default device detection for transcription")
+# print("Using default device detection for transcription")
 
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -74,15 +75,15 @@ def test_whisper_transcription(audio_file_path: str) -> str:
         str: Transcribed text or error message
     """
     try:
-        print(f"Testing Whisper transcription with file: {audio_file_path}")
-        print(f"File exists: {os.path.exists(audio_file_path)}")
+        # print(f"Testing Whisper transcription with file: {audio_file_path}")
+        # print(f"File exists: {os.path.exists(audio_file_path)}")
         
         whisper_model = whisper.load_model("small", device=DEVICE)
-        print(f"Whisper model loaded successfully")
+        # print(f"Whisper model loaded successfully")
         
-        print("Starting transcription...")
+        # print("Starting transcription...")
         result = whisper_model.transcribe(audio_file_path)
-        print(f"Transcription completed successfully")
+        # print(f"Transcription completed successfully")
         
         return result["text"]
     except Exception as e:
@@ -100,7 +101,7 @@ def audio_transcriber_tool(input_str: str) -> str:
     Returns:
     str: The transcribed text from the YouTube video or audio file.
     """
-    print(f"Received input: {input_str}")
+    # print(f"Received input: {input_str}")
     
     def extract_video_id(url):
         parsed_url = urllib.parse.urlparse(url)
@@ -122,7 +123,7 @@ def audio_transcriber_tool(input_str: str) -> str:
 
         try:
             transcript_data = YouTubeTranscriptApi().fetch(video_id, languages=['fr', 'en'])
-            print(f"Received transcript: {transcript_data}")
+            # print(f"Received transcript: {transcript_data}")
             return ' '.join([snippet.text for snippet in transcript_data.snippets])
         except (NoTranscriptFound, TranscriptsDisabled, VideoUnavailable):
             return None
@@ -144,7 +145,7 @@ def audio_transcriber_tool(input_str: str) -> str:
 
         # Check if it's a YouTube URL or file path
         if is_youtube_url(content):
-            print(f"Processing YouTube URL: {content}")
+            # print(f"Processing YouTube URL: {content}")
             # Get transcript from YouTube
             youtube_transcription = get_youtube_transcription(content)
             if youtube_transcription:
@@ -168,22 +169,22 @@ def audio_transcriber_tool(input_str: str) -> str:
             audio_file = "audio_file.mp3"
             whisper_model = whisper.load_model("small", device=DEVICE)
             result = whisper_model.transcribe(audio_file)
-            print(f"Transcription completed")
+            # print(f"Transcription completed")
 
             os.remove(audio_file)
             return result["text"]
         else:
             # Treat as audio file path
-            print(f"Processing audio file: {content}")
+            # print(f"Processing audio file: {content}")
             if not os.path.exists(content):
                 return f"Error: File not found at {content}"
             
             whisper_model = whisper.load_model("small", device=DEVICE)
-            print(f"Whisper model loaded successfully for file transcription.")
+            # print(f"Whisper model loaded successfully for file transcription.")
             
-            print("Starting transcription of file...")
+            # print("Starting transcription of file...")
             result = whisper_model.transcribe(content)
-            print(f"File transcription completed successfully.")
+            # print(f"File transcription completed successfully.")
             
             return result["text"]
             
@@ -202,16 +203,16 @@ def audio_file_transcriber_tool(file_path: str) -> str:
     str: The transcribed text of the audio file.
     """
     try:
-        print(f"Transcribing audio file: {file_path}")
+        # print(f"Transcribing audio file: {file_path}")
         if not os.path.exists(file_path):
             return f"Error: File not found at {file_path}"
         
         whisper_model = whisper.load_model("small", device=DEVICE)
-        print(f"Whisper model loaded successfully for file transcription.")
+        # print(f"Whisper model loaded successfully for file transcription.")
         
-        print("Starting transcription of file...")
+        # print("Starting transcription of file...")
         result = whisper_model.transcribe(file_path)
-        print(f"File transcription completed successfully.")
+        # print(f"File transcription completed successfully.")
         
         return result["text"]
     except Exception as e:
@@ -220,78 +221,122 @@ def audio_file_transcriber_tool(file_path: str) -> str:
 @CrewBase
 class VideoSummary():
     """VideoSummary crew"""
-
     agents: List[BaseAgent]
     tasks: List[Task]
+
     def __init__(self):
-        # Load audio transcriber tool
         self.audio_tool = [audio_transcriber_tool, audio_file_transcriber_tool]
-        #summary generated
-        self.summaryReport=""
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-    
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
+        self.summaryReport = ""
+
     @agent
     def transcriber(self) -> Agent:
         return Agent(
-            config=self.agents_config['transcriber'],
-            tools=self.audio_tool,  # Uses audio transcriber tool for converting podcast audio to text.
-            verbose=True,
-            allow_delegation=False,
-        )
+            config=self.agents_config['transcriber'], 
+            tools=self.audio_tool,
+            verbose=True, 
+            allow_delegation=False)
 
     @agent
     def summarizer(self) -> Agent:
         return Agent(
-            config=self.agents_config['summarizer'],
-            tools=[],  # No specific tools required, relies on LLM for summarization.
-            verbose=True,
-            allow_delegation=False,
-        )
+            config=self.agents_config['summarizer'], 
+            tools=[], 
+            verbose=True, 
+            allow_delegation=False)
+
     @agent
-    def filewriter(self) -> Agent:
+    def router_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['filewriter'],
-            tools=[FileWriterTool(file_path='Video_Summary.txt')],
+            config=self.agents_config['router_agent'], 
+            tools=[], 
+            verbose=True, 
+            allow_delegation=True)
+
+    @agent
+    def responder_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['responder_agent'], 
+            tools=[], 
+            verbose=True, 
+            allow_delegation=False)
+
+
+    @agent
+    def chat_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['chat_agent'], 
+            tools=[], 
+            verbose=True, 
+            allow_delegation=True)
+    @agent
+    def info_finder(self) -> Agent:
+        return Agent(
+            config=self.agents_config['info_finder'],
+            tools=[SerperDevTool()],
             verbose=True
         )
 
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
+    @agent
+    def filewriter(self) -> Agent:
+        return Agent(
+            config=self.agents_config['filewriter'], 
+            tools=[FileWriterTool(file_path='Video_Summary.txt')], 
+            verbose=True)
+
     @task
     def transcription_task(self) -> Task:
         return Task(
-            config=self.tasks_config['transcription_task'],
-            tools=self.audio_tool,  # Uses audio transcriber tool for converting audio to text.
-        )
+            config=self.tasks_config['transcription_task'], 
+            tools=self.audio_tool)
 
     @task
     def summary_task(self) -> Task:
         return Task(
-            config=self.tasks_config['summary_task'],
-            tools=[],  # No specific tools needed.
-        )
+            config=self.tasks_config['summary_task'], 
+            tools=[])
+
     @task
     def file_write_task(self) -> Task:
         return Task(
-            config=self.tasks_config['file_write_task'],
+            config=self.tasks_config['file_write_task'])
+
+    @task
+    def chat_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['chat_task'])
+    @task
+    def info_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['info_task']
         )
 
-    @crew
-    def crew(self) -> Crew:
-        """Creates the VideoSummary crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
-
+    def create_summarization_crew(self) -> Crew:
+        """
+        Creates the crew responsible for transcription, summarization, and file writing.
+        """
         return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
+            agents=[self.transcriber(), self.summarizer(), self.filewriter()],
+            tasks=[self.transcription_task(), self.summary_task(), self.file_write_task()],
             process=Process.sequential,
             verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+        )
+
+    def create_chat_crew(self) -> Crew:
+        """
+        Creates the crew responsible for handling chat interactions.
+        This crew is hierarchical, with a chat agent managing an info finder.
+        """
+        # Instantiate the agents that will be part of the crew
+        chat_agent_manager = self.chat_agent()
+        info_finder_agent = self.info_finder()
+
+        return Crew(
+            # The 'agents' list should ONLY contain the worker agents.
+            # The manager is defined separately and should not be in this list.
+            agents=[info_finder_agent],
+            tasks=[self.chat_task(), self.info_task()],
+            process=Process.hierarchical,
+            manager_agent=chat_agent_manager,
+            verbose=False # Keep UI clean. Set to 2 to see delegation steps in your terminal.
         )

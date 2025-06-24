@@ -43,3 +43,44 @@ file_write_task:
     - Proper spacing and indentation
     - Easy to read and navigate content
   agent: filewriter
+
+chat_task:
+  description: >
+    You are the primary chat assistant. Your role is to thoughtfully respond to a user's request based on a provided summary.
+    You have a research assistant (info_finder) available for delegation, but you must use it ONLY when absolutely necessary.
+
+    Follow these steps to process the user's request:
+
+    Step 1: Analyze the User's Request. Determine the user's primary intent. Is it:
+      a) A simple greeting or a question about your identity? (e.g., "Hello," "Who are you?")
+      b) A question seeking specific information that can be found in the summary? (e.g., "Who is the artist?")
+      c) A request to reformat, restyle, or creatively rewrite the existing summary? (e.g., "Rewrite this as an essay," "Make this more concise.")
+      d) A question that requires new, external information NOT contained in the summary? (e.g., "What was the song's peak chart position in Germany?")
+
+    Step 2: Execute based on the intent.
+      - If the intent is (a), (b), or (c), you already have all the information you need. You MUST NOT use a tool. Your ONLY valid move is to immediately provide the complete response using the 'Final Answer:' format.
+      - If, and ONLY if, the intent is (d) and you have verified the information is not in the summary, you MUST use one of your tools to delegate the task to the 'info_finder' agent.
+
+    Step 3: Formulate the Final Answer.
+      - For intents (a), (b), and (c), construct your response and provide it immediately in the 'Final Answer:' block. For intent (a), the response should be a polite greeting that states your purpose. For (b) and (c), the response is the answer or rewritten text from the summary.
+      - For intent (d), after receiving the information from the info_finder, synthesize it into a complete response and provide it in the 'Final Answer:' block.
+
+    SUMMARY CONTEXT:
+    ---
+    {summary}
+    ---
+
+    USER'S REQUEST:
+    ---
+    {user_message}
+    ---
+  expected_output: >
+    A helpful and accurate response that correctly handles greetings, uses the provided summary for rewriting/answering, or the info_finder for external research, based on a clear analysis of the user's intent. The final output must be a single, complete answer.
+  agent: chat_agent
+
+info_task:
+  description: >
+    Take the search query provided by the Chat Assistant Manager and perform a web search to find the most relevant and up-to-date information.
+  expected_output: >
+    A concise summary of the findings from the web search, including key facts and sources if relevant. This output will be given back to the Chat Assistant Manager.
+  agent: info_finder
