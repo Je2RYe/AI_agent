@@ -7,11 +7,26 @@ import yt_dlp
 import urllib.parse
 import json
 from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound, TranscriptsDisabled, VideoUnavailable
-import whisper
 import os
 from crewai_tools import SerperDevTool
 from crewai.tools import tool
 from dotenv import load_dotenv
+import torch
+from transformers import pipeline
+
+STT_MODEL_ID = "ian-r3/stt_model"
+transcription_pipeline = None
+def get_transcription_pipeline():
+    global transcription_pipeline
+    if transcription_pipeline is None:
+        device = 0 if torch.cuda.is_available() else -1
+        transcription_pipeline = pipeline(
+            "automatic-speech-recognition",
+            model=STT_MODEL_ID,
+            device=device,
+            chunk_length_s=30,
+        )
+    return transcription_pipeline
 
 # Dynamic FFmpeg path detection
 def setup_ffmpeg_path():
@@ -77,13 +92,9 @@ def test_whisper_transcription(audio_file_path: str) -> str:
     try:
         # print(f"Testing Whisper transcription with file: {audio_file_path}")
         # print(f"File exists: {os.path.exists(audio_file_path)}")
-        
-        whisper_model = whisper.load_model("small", device=DEVICE)
-        # print(f"Whisper model loaded successfully")
-        
-        # print("Starting transcription...")
-        result = whisper_model.transcribe(audio_file_path)
-        # print(f"Transcription completed successfully")
+
+        pipe = get_transcription_pipeline()
+        result = pipe(audio_file_path)
         
         return result["text"]
     except Exception as e:
@@ -167,8 +178,8 @@ def audio_transcriber_tool(input_str: str) -> str:
                 ydl.download([content])
 
             audio_file = "audio_file.mp3"
-            whisper_model = whisper.load_model("small", device=DEVICE)
-            result = whisper_model.transcribe(audio_file)
+            pipe = get_transcription_pipeline()
+            result = pipe(audio_file)
             # print(f"Transcription completed")
 
             os.remove(audio_file)
@@ -178,13 +189,9 @@ def audio_transcriber_tool(input_str: str) -> str:
             # print(f"Processing audio file: {content}")
             if not os.path.exists(content):
                 return f"Error: File not found at {content}"
-            
-            whisper_model = whisper.load_model("small", device=DEVICE)
-            # print(f"Whisper model loaded successfully for file transcription.")
-            
-            # print("Starting transcription of file...")
-            result = whisper_model.transcribe(content)
-            # print(f"File transcription completed successfully.")
+
+            pipe = get_transcription_pipeline()
+            result = pipe(content)
             
             return result["text"]
             
@@ -206,13 +213,9 @@ def audio_file_transcriber_tool(file_path: str) -> str:
         # print(f"Transcribing audio file: {file_path}")
         if not os.path.exists(file_path):
             return f"Error: File not found at {file_path}"
-        
-        whisper_model = whisper.load_model("small", device=DEVICE)
-        # print(f"Whisper model loaded successfully for file transcription.")
-        
-        # print("Starting transcription of file...")
-        result = whisper_model.transcribe(file_path)
-        # print(f"File transcription completed successfully.")
+
+        pipe = get_transcription_pipeline()
+        result = pipe(file_path)
         
         return result["text"]
     except Exception as e:
