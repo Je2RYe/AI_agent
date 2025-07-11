@@ -43,6 +43,10 @@ SERPER_API_KEY=your_serper_api_key_here_'https://serper.dev/api-keys'
 ```bash
 streamlit run video_summary/src/video_summary/main.py
 ```
+If you prefer to run it in docker
+```bash
+docker compose up --build
+```
 
 ## 🔧 FFmpeg Installation
 
