@@ -1,47 +1,53 @@
 transcription_task:
   description: >
-    Transcribe the video or audio from {content} into text to provide a base for further analysis.
-    Format the transcription with proper paragraphs and line breaks for better readability.
+    Transcribe the audio from {content}. 
+    Make sure to distinguish between different speakers if applicable.
   expected_output: >
-    A well-formatted text transcription with:
-    - Clear paragraph separation
-    - Proper line breaks for different speakers or sections
-    - Timestamps if available
-    - Clean and readable formatting
+    A clean text transcription.
   agent: transcriber
 
 summary_task:
   description: >
-    Create a comprehensive summary of the transcribed text, organizing it into clear sections.
-    Include:
-    1. Main Topics: List the key topics discussed
-    2. Key Points: Bullet points of important information
-    3. Overall Summary: A concise overview of the content
-    4. Notable Quotes: Any significant or memorable quotes
+    Analyze the transcription and create a "High-Value Content Report".
+    
+    **STEP 1: CLASSIFY THE CONTENT**
+    First, determine the category of the video:
+    - **Type A: Educational/Academic** (Lectures, Tutorials, Documentaries)
+    - **Type B: Procedural/How-To** (Cooking, DIY, Software Tutorials)
+    - **Type C: General/Lifestyle** (Vlogs, News, Reviews, Entertainment)
+
+    **STEP 2: GENERATE THE REPORT BASED ON CATEGORY**
+    
+    **If Type A (Academic):**
+    - Focus on **Learning Outcomes**.
+    - Structure: "Core Concepts", "Logical Arguments", "Key Definitions", "Examples Used".
+    - Goal: Replace the need to watch the lecture.
+
+    **If Type B (How-To):**
+    - Focus on **Actionable Steps**.
+    - Structure: "Prerequisites/Ingredients", "Step-by-Step Guide", "Common Mistakes", "Pro Tips".
+    - Goal: Help the user execute the task immediately.
+
+    **If Type C (General/Lifestyle):**
+    - Focus on **Highlights & Insights**.
+    - Structure: "Main Talking Points", "Key Opinions/Arguments", "Best Moments/Quotes", "Takeaway".
+    - Goal: Give a quick digest of what happened.
+
+    **STEP 3: FINAL FORMATTING**
+    Regardless of type, your output must be valid Markdown with:
+    - A clear title indicating the Content Type detected.
+    - **Bold** for key terms.
+    - Bullet points for readability.
   expected_output: >
-    A structured summary containing:
-    - Main Topics section
-    - Key Points section with bullet points
-    - Overall Summary section
-    - Notable Quotes section (if applicable)
-    All sections should be clearly labeled and well-formatted.
+    A structured Markdown report that automatically adapts its section headers and depth based on whether the content is academic, procedural, or general.
   agent: summarizer
-  
+
 file_write_task:
   description: >
-    Write the formatted summary to the 'Video_Summary.txt' file.
-    Ensure the file has:
-    - Clear section headers
-    - Proper spacing and indentation
-    - Consistent formatting throughout
-    - A clean, professional layout
+    Write the generated report to 'Video_Summary.txt'.
+    Ensure proper Markdown formatting.
   expected_output: >
-    A professionally formatted file containing:
-    - Title and date
-    - Well-structured sections
-    - Clear formatting with headers and subheaders
-    - Proper spacing and indentation
-    - Easy to read and navigate content
+    A clean .txt file containing the report.
   agent: filewriter
 
 chat_task:
