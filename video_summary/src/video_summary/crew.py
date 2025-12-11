@@ -225,48 +225,44 @@ class VideoSummary():
     tasks: List[Task]
 
     def __init__(self, model_name="gemini-2.0-flash-lite-001"):
-        # 1. 初始化工具
+        
         self.audio_tool = [audio_transcriber_tool, audio_file_transcriber_tool]
         self.summaryReport = ""
         
         self.model_name = model_name
         
-        # 2. 获取 API Key
         api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in .env file")
             
-        # 3. 核心修改：处理模型名称前缀
-        # 如果传入的名称没有 gemini/ 前缀，手动添加
-        # 这是 LiteLLM 识别 Google Gemini 的标准格式
+        
         if not self.model_name.startswith("gemini/"):
             self.model_name = f"gemini/{self.model_name}"
 
-        # 4. 使用 CrewAI 原生 LLM 类替代 LangChain
-        # 4. 初始化核心自适应 LLM (用于 Summarizer, Chat)
+        
         self.llm = LLM(
             model=self.model_name,
             api_key=api_key,
             temperature=0.7
         )
         
-        # [新增 1] 专门用于低开销任务的 LLM 实例 (固定 Lite 模型)
+        
         self.low_cost_llm = LLM(
             model="gemini/gemini-2.0-flash-lite-001",
             api_key=api_key,
-            temperature=0.1 # 低温，更稳定
+            temperature=0.1 
         )
         
-        # [新增 2] 专门用于审计的高性能 LLM (固定 Pro 模型)
+        
         self.audit_llm = LLM(
-             model="gemini/gemini-2.5-flash", # 强制使用 Pro
+             model="gemini/gemini-2.5-flash", 
              api_key=api_key,
-             temperature=0.0 # 零度，确保客观性
+             temperature=0.0 
         )
         
         super().__init__()
 
-    # 修改 Agent 定义，显式传入 llm=self.llm
+    
     @agent
     def transcriber(self) -> Agent:
         return Agent(
@@ -277,7 +273,7 @@ class VideoSummary():
             llm=self.low_cost_llm  
         )
 
-    @agent #自适应
+    @agent 
     def summarizer(self) -> Agent:
         return Agent(
             config=self.agents_config['summarizer'], 
@@ -287,7 +283,7 @@ class VideoSummary():
             llm=self.llm 
         )
 
-    @agent #自适应
+    @agent 
     def router_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['router_agent'], 
@@ -297,7 +293,7 @@ class VideoSummary():
             llm=self.llm 
         )
 
-    @agent #自适应
+    @agent 
     def responder_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['responder_agent'], 
@@ -307,7 +303,7 @@ class VideoSummary():
             llm=self.llm 
         )
 
-    @agent #自适应
+    @agent 
     def chat_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['chat_agent'], 
@@ -343,7 +339,6 @@ class VideoSummary():
             if the work is poor. You ignore cost and speed; you only care about the text quality.""",
             verbose=True,
             allow_delegation=False,
-            # 强制使用高性能模型进行审查，确保评分质量
             llm=self.audit_llm
         )
     @task
@@ -420,7 +415,7 @@ class VideoSummary():
             config=self.tasks_config['info_task']
         )
     
-    # [新增] 创建审查 Crew
+    
     def create_evaluation_crew(self) -> Crew:
         return Crew(
             agents=[self.evaluator()],
