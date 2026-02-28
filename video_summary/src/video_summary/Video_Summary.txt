@@ -1,0 +1,76 @@
+**Type C: General/Lifestyle - Apple OS Updates Keynote Highlights**
+
+**Main Talking Points**
+*   Introduction of a comprehensive suite of significant updates across all major Apple operating systems: **iOS 26**, **CarPlay**, **Watch OS 26**, **tvOS 26**, **macOS Tahoe**, **visionOS 26**, and **iPadOS 26**.
+*   Strong emphasis on design refinements, enhanced user experience, advanced connectivity, and productivity tools, all aiming for a more personalized and intuitive interaction.
+*   Integration of **Apple Intelligence** and **Visual Intelligence** to streamline user workflows, automate tasks, and provide smarter suggestions.
+*   The new OS releases will be available as **developer betas today**, with a **public beta coming next month**, and general availability to **all users this fall**.
+
+**Key Features & Enhancements**
+
+*   **iOS 26**
+    *   **Liquid Glass Design**: Transforms based on content/context, refracts light, dynamically reacts to movement.
+    *   **Lock Screen Updates**: Time adapts fluidly to space, keeps best part of photos in view.
+    *   **Spatial Scene Generation**: Creates a delightful **3D effect** from 2D photos as iPhone moves.
+    *   **Photos App**: Features separate tabs for **Library** and **Collections**.
+    *   **CarPlay Enhancements**: More beautiful and easier to use, compact call design, **Widgets**, and **Live Activities**.
+    *   **CarPlay Ultra**: Allows choice of layout/design and adds **vehicle controls** (radio, climate).
+    *   **Phone App**: New **unified layout** (favorites, recents, voicemails), **Call Screening** for unknown numbers, **Hold Music Detection** (asks if you want it to wait).
+    *   **Messages**:
+        *   **Backgrounds**: New way to personalize shared spaces.
+        *   **Polls**: Create polls for anything, **Apple Intelligence** suggests polls.
+        *   **Apple Cash**: Request, send, and receive directly from group chat.
+        *   **Typing Indicators** for group chats.
+        *   **Screening Tools**: Eliminate distractions, **screen new senders** to reduce spam.
+        *   **Emoji Mix**: Combine two emoji to create something new.
+        *   **Live Translation**: Automatically translates text, **FaceTime live captions**, real-time spoken translation during phone calls.
+    *   **Maps**: Introduces **Visited Places** to detect and view past locations.
+    *   **Wallet**: Create a **Digital ID with US Passport** for domestic travel at supported TSA checkpoints, in apps, and in person (not a physical passport replacement).
+    *   **Visual Intelligence**: Extends to iPhone screen for searching and taking action across apps (e.g., image search from screenshots).
+
+*   **Watch OS 26**
+    *   **Workout Buddy**: Provides pep talks, tracks progress, and encourages closing rings.
+    *   **Smart Stack Enhancements**: Accurately predicts immediately useful features (e.g., gym workout widget).
+    *   **Ambient Noise Interpretation**: Automatically adjusts volume of incoming calls and notifications.
+    *   **New Wrist Flick Gesture**: Dismisses notifications, mutes calls, silences timers/alarms, closes Smart Stack.
+    *   **Notes App**: Now available on Apple Watch.
+
+*   **tvOS 26**
+    *   **App Icons**: More vibrant with layered design and new **specular highlights**.
+    *   **Playback Controls**: Refract content underneath for a seamless experience.
+    *   **Profiles**: Option to set Apple TV to display profiles on wake.
+    *   **Apple Music Enhancements**: iPhone becomes the mic, amplifying voice through TV with visual effects.
+
+*   **macOS Tahoe**
+    *   **Menu Bar**: Now completely **transparent**, customizable controls.
+    *   **Folder Customization**: Change color, add symbol or emoji.
+    *   **Live Activities**: iPhone Live Activities (e.g., Uber Eats) appear in the menu bar.
+    *   **iPhone Mirroring**: Allows taking action directly on Mac from mirrored iPhone apps.
+    *   **Phone App**: Now integrated into Mac.
+    *   **Spotlight Overhaul**: Biggest update ever, relevant files, intelligent suggestions, **system and app actions**, **Quick Keys** (e.g., "SM" for Send Message), **Clipboard History**.
+    *   **Metal 4**: Brings next-generation rendering technologies to games (frame interpolation, denoising).
+
+*   **visionOS 26**
+    *   **Widgets**: Beautiful new widgets like Clock and Weather (adapts to forecast).
+    *   **Personas**: Undergo a dramatic transformation for more realistic representation.
+    *   **Shared Spatial Experiences**: Watch movies or play spatial games together with friends.
+
+*   **iPadOS 26**
+    *   **New Windowing System**:
+        *   **Fluid Resizing**: With a grab handle to resize apps into windows.
+        *   **State Persistence**: Apps open back in the exact same size and position.
+        *   **Precise Pointer**: More responsive with expanding controls on hover.
+        *   **Tiling**: Flick windows towards edges to tile, with a grabber to resize both simultaneously.
+    *   **Menu Bar**: Always available from the top of the screen, familiar and clearly labeled options.
+    *   **Broad Compatibility**: New windowing architecture enabled for **every iPad** that runs iPadOS 26.
+    *   **Supercharged Files App**: Updated list view, resizable columns, collapsible folders, **folder customization** (colors, icons) that syncs across devices, option to choose and set default apps for files.
+    *   **Preview App**: Beloved macOS app comes to iPadOS with familiar editing and export tools.
+    *   **Background Tasks**: Enables extended processes (e.g., exports) to continue running when switching to another app, shown as **Live Activities**.
+
+**Overall Takeaway**
+Apple's latest OS updates underscore a strategic push towards a more **integrated**, **intelligent**, and **personalized** user experience across its ecosystem. The key themes include:
+*   **Seamless Interoperability**: Significant advancements in how devices work together, with features like Live Activities, Phone app integration, and folder customization syncing across iPhone, Mac, and iPad.
+*   **Enhanced Productivity**: Major strides in multitasking (new iPad windowing), file management (supercharged Files app), and efficient workflows (Spotlight overhaul, background tasks on iPad).
+*   **Smarter Communication**: Leveraging AI for features like suggested polls, call screening, and real-time live translation, alongside improved messaging organization.
+*   **Personalization & Design**: A focus on dynamic and customizable interfaces, from liquid glass lock screens to folder customization, creating more immersive and individual user environments.
+*   **Convenience & Accessibility**: Introducing features like Digital ID, intuitive Wrist Flick gestures, and smarter Smart Stack predictions to make daily interactions more effortless and accessible.

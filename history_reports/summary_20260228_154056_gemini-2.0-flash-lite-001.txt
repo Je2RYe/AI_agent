@@ -1,0 +1,218 @@
+```txt
+# Type B: Procedural/How-To - Build an AI Agent from Scratch in Python
+
+## Prerequisites/Ingredients
+
+*   **Python:**  Installed on your system (version 3.10 or above recommended).
+*   **Code Editor:**  Visual Studio Code recommended.
+*   **New Folder:**  Create a new folder for your project.
+*   **Dependencies:**
+    *   `requirements.txt` file (see below for content).
+    *   Virtual Environment (recommended) or use `pip install -r requirements.txt`.
+    *   API keys for LLMs (OpenAI or Anthropic/Claude).
+
+```
+langchain
+pydantic
+openai
+anthropic
+wikipedia
+duckduckgo-search
+python-dotenv
+```
+
+## Step-by-Step Guide
+
+### 1.  Set Up the Project
+
+1.  **Create Project Folder:** Create a folder (e.g., "AI agent tutorial").
+2.  **Create `requirements.txt`:**  Create a file named `requirements.txt` in your project folder and add the dependencies listed above.
+3.  **Create Virtual Environment (Recommended):**
+    *   Open a terminal in your project directory.
+    *   Run `python -m venv venv` (Windows: `venv\Scripts\activate`; Mac/Linux: `source venv/bin/activate`).
+4.  **Install Dependencies:**  Run `pip install -r requirements.txt` (or `pip3 install -r requirements.txt` if needed) in your activated virtual environment.
+5.  **Create Files:** Create `main.py`, `tools.py`, and `.env` files.
+
+### 2.  Set Up API Keys
+
+1.  **Get API Keys:**
+    *   **OpenAI:**  Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys) and generate a new API key.
+    *   **Anthropic/Claude:** Go to [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) and create a key.
+2.  **Store API Keys:**  In the `.env` file, add the following (replace the placeholder with your actual key):
+
+    ```
+    OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+    ANTHROPIC_API_KEY=YOUR_ANTHROPIC_API_KEY
+    ```
+
+    *   Choose the appropriate key based on your chosen LLM (OpenAI or Anthropic).
+
+### 3. Code the main logic.
+
+1.  **Import Libraries:** In `main.py`, import necessary libraries.
+
+    ```python
+    from dotenv import load_dotenv
+    from pydantic import BaseModel
+    from langchain.chat_models import ChatOpenAI, ChatAnthropic
+    from langchain.chains.openai import load_summarize_chain
+    from langchain.prompts import ChatPromptTemplate
+    from langchain.output_parsers import PydanticOutputParser
+    from langchain.agents import create_tool_calling_agent, AgentExecutor
+    ```
+
+2.  **Load Environment Variables:** Load your API keys.
+
+    ```python
+    load_dotenv()
+    ```
+
+3.  **Choose an LLM:** Select either OpenAI or Anthropic.
+
+    ```python
+    llm = ChatOpenAI(model="gpt-3.5-turbo") # Or use ChatAnthropic(model="claude-3-opus-20240229")
+    ```
+
+4.  **Define a Response Model:** Create a Pydantic model to structure the LLM output.
+
+    ```python
+    class ResearchResponse(BaseModel):
+        topic: str
+        summary: str
+        sources: list[str]
+        tools_used: list[str]
+    ```
+
+5.  **Create a Parser:** Instantiate a Pydantic output parser.
+
+    ```python
+    parser = PydanticOutputParser(pydantic_object=ResearchResponse)
+    ```
+
+6.  **Create a Prompt Template:** Define a prompt template to guide the LLM.
+
+    ```python
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", "You are a research assistant that will help generate a research paper. Answer the user query and use the necessary tools. Wrap the output in this format and provide no other text: \n{format_instructions}"),
+            ("user", "{query}")
+        ]
+    ).partial(format_instructions=parser.get_format_instructions())
+    ```
+
+7.  **Create an Agent:** Create the agent using `create_tool_calling_agent`.
+
+    ```python
+    from langchain.agents import create_tool_calling_agent
+    agent = create_tool_calling_agent(
+        llm=llm,
+        prompt=prompt,
+        tools=tools # Tools will be defined later
+    )
+    ```
+
+8.  **Create Agent Executor:** Instantiate an `AgentExecutor`.
+
+    ```python
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    ```
+
+9.  **Get User Input:** Ask the user for a research query.
+
+    ```python
+    query = input("What can I help you research? ")
+    ```
+
+10. **Run the Agent and Parse the Response:**
+
+    ```python
+    try:
+        raw_response = agent_executor.invoke({"query": query})
+        structured_response = parser.parse(raw_response["output"][0].text)
+        print(structured_response)
+    except Exception as e:
+        print("Error parsing response")
+        print(e)
+        print(raw_response)
+    ```
+
+### 4.  Create Tools
+
+1.  **Create `tools.py`:** Create a new file called `tools.py`
+2.  **Implement Search Tool:**  Use DuckDuckGo search.
+
+    ```python
+    from langchain.tools import DuckDuckGoSearchRun
+    search = DuckDuckGoSearchRun()
+    my_search_tool = Tool(
+        name="search",
+        func=search.run,
+        description="Search the web for information",
+    )
+    ```
+
+3.  **Implement Wikipedia Tool:**
+
+    ```python
+    from langchain.tools import WikipediaQueryRun
+    from langchain.utilities import WikipediaAPIWrapper
+    api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=100)  # Adjust parameters as needed
+    wiki_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
+    ```
+
+4.  **Implement Custom Tool (Save to File):**
+
+    ```python
+    from datetime import datetime
+    def save_to_txt(data: str, file_name: str) -> str:
+        """Saves structured research data to a text file."""
+        now = datetime.now()
+        timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+        with open(f"{file_name}.txt", "w") as f:
+            f.write(f"Research Output: {timestamp}\n")
+            f.write(data)
+        return "Saved to file successfully!"
+
+    from langchain.tools import Tool
+    save_tool = Tool(
+        name="save_text_to_file",
+        func=save_to_txt,
+        description="Save structured research data to a text file"
+    )
+    ```
+
+5.  **Import and Use Tools:** In `main.py`, import the tools.
+
+    ```python
+    from tools import my_search_tool, wiki_tool, save_tool
+    tools = [my_search_tool, wiki_tool, save_tool]  # Include all tools in the list
+    ```
+
+### 5.  Run the Code
+
+1.  **Run `main.py`:** Open a terminal in your project directory and run `python main.py` (or `python3 main.py`).
+2.  **Enter a Query:**  The program will prompt you to enter a research question.
+3.  **Observe the Output:**  The agent will use the tools to search and generate a structured response.
+4.  **Check for Saved File:** The custom tool should save the research output to a `.txt` file.
+
+## Common Mistakes
+
+*   **Missing Dependencies:** Ensure all dependencies in `requirements.txt` are installed.
+*   **Incorrect API Keys:** Double-check your API keys in the `.env` file.
+*   **Incorrect Model Names:** Verify you're using the correct model names for your chosen LLM.
+*   **Prompt Formatting:**  Ensure the system message in the prompt template correctly instructs the LLM to output in the specified format.
+*   **Tool Descriptions:**  Provide clear and concise descriptions for your tools.
+*   **Output Parsing Errors:** If the LLM's output doesn't match the expected format, the parser will throw an error.  Use a `try...except` block to handle these errors.
+
+## Pro Tips
+
+*   **Experiment with Prompts:** Fine-tune your prompt template to improve the quality and format of the LLM's responses.
+*   **Add More Tools:** Integrate more tools from the LangChain community or create your own custom tools to expand the agent's capabilities.
+*   **Use Different LLMs:** Experiment with different LLMs (OpenAI, Anthropic, etc.) to see which ones perform best for your needs.
+*   **Handle Rate Limits:**  Be aware of rate limits for the API calls and implement error handling and retry mechanisms.
+*   **Improve Error Handling:**  Add more robust error handling to catch and manage potential issues during API calls, parsing, and tool execution.
+*   **Add Chat History:** Implement a chat history to make the agent remember previous interactions and provide more context.
+*   **Consider Agents with Memory:** Look into agents that incorporate memory to retain context across multiple turns.
+*   **Use Streaming:** Implement streaming of the LLM's responses for a more interactive user experience.
+*   **Consider LangSmith:** Use LangSmith for debugging and evaluating your agent's performance.
+```

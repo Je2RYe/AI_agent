@@ -1,0 +1,71 @@
+```
+## Video Summary: Secure Claudebot (OpenClaw) Setup Guide
+
+This guide provides a security-focused approach to setting up Claudebot (OpenClaw), an open-source orchestration layer for AI models. It emphasizes best practices to protect user data, credentials, and API keys, contrasting with common, insecure setups.
+
+### I. Prerequisites & Key Concepts
+
+*   **OpenClaw:** An orchestration layer for LLMs (GPT, Anthropic, etc.), *not* an AI model itself.
+*   **Security First:** The primary focus is on a secure environment to prevent hacking and data loss.
+*   **Costs:** Running OpenClaw incurs costs (VPS, LLM usage).
+*   **Required Tools/Accounts:**
+    *   VPS (e.g., Hostinger)
+    *   Terminal access
+    *   Tailscale account
+    *   OpenAI or Anthropic account/API key
+    *   Telegram account
+
+### II. Security Vulnerabilities & Best Practices
+
+1.  **Self-Hosting on Home Computer:**
+    *   **Vulnerability:** Exposes home network.
+    *   **Best Practice:** Host on a VPS.
+2.  **Insecure Cloud Server Configuration:**
+    *   **Vulnerability:** Root access enabled, no password, no secure tunnel.
+    *   **Best Practice:** Disable root access, strong root password, VPN tunneling (Tailscale), IP restrictions.
+3.  **Prompt Injection Attacks:**
+    *   **Vulnerability:** Malicious prompts.
+    *   **Best Practice:** (Covered in setup).
+4.  **Excessive API Access & Costs:**
+    *   **Vulnerability:** Uncontrolled spending.
+    *   **Best Practice:** Sandboxing, API limits.
+5.  **Using API Keys for LLMs:**
+    *   **Vulnerability:** API keys can be expensive and carry higher risk if exposed.
+    *   **Best Practice:** Use existing LLM subscriptions (ChatGPT Pro, Claude Plus) via Codeex integration.
+
+### III. Step-by-Step Secure Setup Guide
+
+1.  **Acquire a Virtual Private Server (VPS):**
+    *   Hostinger KVM2 recommended.
+    *   Choose a plain OS (Debian 13).
+    *   Generate a strong root password.
+    *   Do NOT enable Docker initially.
+    *   Provision the VPS.
+2.  **Establish Secure Remote Access via SSH and Tailscale:**
+    *   SSH into VPS: `ssh root@<YOUR_VPS_IP_ADDRESS>`.
+    *   Install Tailscale on VPS: `tailscale up --ssh`.
+    *   Authenticate Tailscale.
+    *   Install Tailscale on local device.
+3.  **Install OpenClaw on the VPS:**
+    *   Access OpenClaw website and copy the installation command.
+    *   Execute the command in the SSH session.
+    *   Enter root password.
+4.  **Configure OpenClaw Initial Settings:**
+    *   Select "yes" for security questions.
+    *   Choose "manual" setup.
+    *   Select "local gateway."
+    *   Keep the default workspace.
+    *   Model Configuration: OpenAI or Anthropic.
+        *   **Recommended:** Codeex integration for existing subscriptions.
+        *   If using API keys, create an account and generate an API key.
+5.  **Set Up Telegram Bot (for Interaction):**
+    *   Find BotFather in Telegram.
+    *   Create a new bot: `/newbot`.
+        *   Bot Name.
+        *   Bot Username (ends in `_bot`).
+    *   Obtain Bot Token from BotFather.
+
+### IV. Conclusion
+
+This guide provides a secure and detailed setup for Claudebot (OpenClaw), minimizing risks compared to less secure methods.
+```

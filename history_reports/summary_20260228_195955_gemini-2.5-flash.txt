@@ -1,0 +1,164 @@
+```text
+## High-Value Content Report: Procedural/How-To
+
+### Building an AI Agent from Scratch in Python (LangChain, LLMs, Tools)
+
+This tutorial provides a **step-by-step guide** on how to build a functional AI agent using Python, leveraging popular frameworks like **LangChain** and various **Large Language Models (LLMs)** such as **Claude** or **GPT**. It covers setting up the environment, integrating LLMs, defining structured outputs, and giving the agent access to custom and community tools.
+
+---
+
+### Prerequisites & Setup
+
+*   **Python Installation**:
+    *   **Python 3.10** or above is recommended.
+*   **Code Editor**:
+    *   **Visual Studio Code** is used and recommended.
+*   **Project Folder**:
+    *   Create a dedicated folder (e.g., `AI_agent_tutorial`).
+*   **Python Dependencies**:
+    *   Create a `requirements.txt` file and add the following:
+        ```
+        langchain-openai
+        langchain-anthropic
+        langchain-community
+        langchain
+        pydantic
+        python-dotenv
+        duckduckgo-search
+        ```
+    *   **Virtual Environment (Recommended)**:
+        *   Create: `python -m venv venv` (or `python3` on Mac/Linux).
+        *   Activate:
+            *   Mac/Linux: `source venv/bin/activate`
+            *   Windows: `venv\Scripts\activate`
+    *   **Install Packages**: `pip install -r requirements.txt` (or `pip3`).
+*   **API Keys**:
+    *   Create a `.env` file in your project root.
+    *   Store your LLM API key:
+        *   For **OpenAI**: `OPENAI_API_KEY=your_openai_api_key`
+        *   For **Anthropic/Claude**: `ANTHROPIC_API_KEY=your_anthropic_api_key`
+    *   Obtain keys from:
+        *   OpenAI: `platform.openai.com/api-keys`
+        *   Anthropic: `console.anthropic.com/settings/keys`
+        *   *Note*: A credit card might be required, but costs are typically minimal.
+
+---
+
+### Step-by-Step Guide: Building the Agent
+
+1.  **Project File Structure**:
+    *   `main.py`: Contains the primary agent logic.
+    *   `tools.py`: Houses the definitions for various tools the agent can use.
+    *   `.env`: Stores API credentials.
+
+2.  **Initialize LLM in `main.py`**:
+    *   Import `load_dotenv` and `ChatOpenAI` or `ChatAnthropic`.
+    *   Load environment variables: `load_dotenv()`.
+    *   Instantiate your chosen LLM:
+        ```python
+        from langchain_anthropic import ChatAnthropic
+        # or from langchain_openai import ChatOpenAI
+
+        llm = ChatAnthropic(model="claude-3-5-sonnet-20240620")
+        # Example for OpenAI: llm = ChatOpenAI(model="gpt-4o-mini")
+        ```
+
+3.  **Define Structured Output with Pydantic**:
+    *   Import `BaseModel` from `pydantic` and `PydanticOutputParser` from `langchain_core.output_parsers`.
+    *   Create a Pydantic class to define the expected output format from the LLM:
+        ```python
+        from pydantic import BaseModel
+        from typing import List
+
+        class ResearchResponse(BaseModel):
+            topic: str
+            summary: str
+            sources: List[str]
+            tools_used: List[str]
+
+        parser = PydanticOutputParser(pydantic_object=ResearchResponse)
+        ```
+    *   This allows the LLM to generate responses in a **predictable, machine-readable format**.
+
+4.  **Create Prompt Template**:
+    *   Import `ChatPromptTemplate` from `langchain_core.prompts`.
+    *   Define a prompt that includes a **system message**, specifies the desired output **format instructions** (from the parser), and placeholders for `chat_history`, `query`, and `agent_scratchpad`.
+    *   Use `partial` to inject the `format_instructions` from the parser into the prompt.
+
+5.  **Implement Tools in `tools.py`**:
+    *   **DuckDuckGo Search Tool**:
+        ```python
+        from langchain_community.tools import DuckDuckGoSearchRun
+        from langchain.tools import Tool
+
+        search = DuckDuckGoSearchRun()
+        search_tool = Tool(
+            name="search",
+            func=search.run,
+            description="Search the web for information."
+        )
+        ```
+    *   **Wikipedia Tool**:
+        ```python
+        from langchain_community.tools.wikipedia.tool import WikipediaQueryRun
+        from langchain_community.utilities import WikipediaAPIWrapper
+
+        api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=100)
+        wiki_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
+        ```
+    *   **Custom Save-to-File Tool**:
+        *   Define a standard Python function (e.g., `save_to_txt`) with **type hints** for parameters.
+        *   Wrap it using the `Tool` class:
+        ```python
+        from datetime import datetime
+
+        def save_to_txt(data: str, file_name: str):
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            with open(f"{file_name}_{timestamp}.txt", "w") as f:
+                f.write(f"Research Output - {timestamp}\n\n")
+                f.write(data)
+            return f"Content saved to {file_name}_{timestamp}.txt"
+
+        save_tool = Tool(
+            name="save_text_to_file",
+            func=save_to_txt,
+            description="Save structured research data to a text file."
+        )
+        ```
+
+6.  **Integrate Agent in `main.py`**:
+    *   Import `create_tool_calling_agent` from `langchain.agents` and `AgentExecutor` from `langchain.agents`.
+    *   Import your defined tools from `tools.py`.
+    *   Create a list of all available tools: `tools = [search_tool, wiki_tool, save_tool]`.
+    *   Instantiate the agent: `agent = create_tool_calling_agent(llm, prompt, tools)`.
+    *   Create the agent executor: `agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)`.
+
+7.  **Invoke and Parse Response**:
+    *   Get user input for the query.
+    *   Invoke the agent executor: `raw_response = agent_executor.invoke({"query": user_query})`.
+    *   Parse the raw LLM output into your structured Pydantic object:
+        ```python
+        try:
+            structured_response = parser.parse(raw_response.get("output")[0]["text"])
+            print(f"Topic: {structured_response.topic}")
+            print(f"Summary: {structured_response.summary}")
+            # Access other fields like structured_response.sources, structured_response.tools_used
+        except Exception as e:
+            print(f"Error parsing response: {e}")
+            print(f"Raw response: {raw_response}")
+        ```
+
+---
+
+### Pro Tips & Best Practices
+
+*   **GitHub Copilot**: Use AI coding assistants for faster development and autocomplete.
+*   **Virtual Environments**: Always use them to manage project dependencies and avoid conflicts.
+*   **Clear Tool Descriptions**: Provide detailed descriptions for each tool so the agent can accurately determine when to use them.
+*   **Verbose Mode**: Set `verbose=True` in `AgentExecutor` to observe the agent's internal thought process and debugging.
+*   **Pydantic for Structured Output**: This is crucial for obtaining predictable, typed responses from LLMs, allowing you to easily integrate their output into your Python code.
+*   **Custom Tools**: Any Python function can be wrapped as a tool, enabling the agent to interact with custom logic, internal APIs, or external services.
+*   **Error Handling**: Implement `try-except` blocks when parsing LLM outputs, as models can sometimes deviate from the expected format.
+
+---
+```

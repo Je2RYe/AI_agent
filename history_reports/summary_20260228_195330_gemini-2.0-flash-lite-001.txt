@@ -1,0 +1,59 @@
+```text
+# AI Agent Tutorial Summary
+
+This tutorial provides a beginner-friendly guide to building an AI agent in Python, leveraging frameworks like Langchain. It covers the following key aspects:
+
+## Core Concepts:
+
+*   **LLMs:** Utilizing Language Learning Models such as Claude or GPT.
+*   **Tools:** Integrating tools like Wikipedia, Google search, and custom tools for specific tasks.
+*   **Agent Structure:** Structuring the agent's output for better usability.
+
+## Steps:
+
+1.  **Project Setup:**
+    *   Creating a project folder.
+    *   Setting up `requirements.txt` for dependencies.
+    *   Using virtual environments (recommended) to manage dependencies.
+
+2.  **Dependencies:**
+    *   Installing necessary libraries like `langchain`, `openai`, `wikipedia`, etc.
+
+3.  **File Structure:**
+    *   Creating `main.py`, `tools.py`, and `.env` files.
+
+4.  **Library Imports and Environment Variables:**
+    *   Importing required libraries and loading environment variables.
+
+5.  **LLM Initialization:**
+    *   Choosing and initializing an LLM (e.g., GPT or Claude).
+
+6.  **LLM Testing:**
+    *   Testing the LLM with a simple prompt.
+
+7.  **Prompt Template and Output Parser:**
+    *   Defining output format using `BaseModel`.
+    *   Creating a `pantic` output parser.
+    *   Creating a `ChatPromptTemplate` to structure prompts.
+
+8.  **Agent Creation:**
+    *   Using `create_tool_calling_agent` to create the agent.
+
+9.  **Error Handling:**
+    *   Implementing `try...except` blocks for error management.
+
+10. **Tool Integration:**
+    *   Integrating tools like Wikipedia search, DuckDuckGo search, and a custom "save to file" tool.
+
+11. **Agent Execution:**
+    *   Running the agent with a query and printing the structured response.
+
+## Pro Tips:
+
+*   Utilizing GitHub Copilot for code completion.
+*   Sharing your coding experiences with #codingwithcopilot.
+
+## Conclusion:
+
+The tutorial culminates in a functional AI agent capable of research, tool utilization, and structured output generation. The agent's capabilities can be extended by adding more tools and refining prompt templates.
+```

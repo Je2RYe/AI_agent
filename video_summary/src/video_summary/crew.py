@@ -233,7 +233,20 @@ class VideoSummary():
         
         api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         if not api_key:
-            raise ValueError("GEMINI_API_KEY not found in .env file")
+            raise ValueError("Gemini API key not found. Set GEMINI_API_KEY or GOOGLE_API_KEY in .env")
+
+        normalized_key = api_key.strip()
+        placeholder_values = {
+            "your_api_key_here",
+            "your_gemini_api_key",
+            "changeme",
+            "replace_me",
+            "<api_key>",
+        }
+        if not normalized_key or normalized_key.lower() in placeholder_values:
+            raise ValueError(
+                "Gemini API key is a placeholder. Update .env with a real GEMINI_API_KEY or GOOGLE_API_KEY."
+            )
             
         
         if not self.model_name.startswith("gemini/"):
@@ -259,8 +272,7 @@ class VideoSummary():
              api_key=api_key,
              temperature=0.0 
         )
-        
-        super().__init__()
+
 
     
     @agent
@@ -427,10 +439,81 @@ class VideoSummary():
     def create_summarization_crew(self) -> Crew:
         """
         Creates the crew responsible for transcription, summarization, and file writing.
+        Used when RAG is NOT needed (short transcripts).
         """
         return Crew(
             agents=[self.transcriber(), self.summarizer(), self.filewriter()],
             tasks=[self.transcription_task(), self.summary_task(), self.file_write_task()],
+            process=Process.sequential,
+            verbose=True,
+        )
+
+    def create_transcription_crew(self) -> Crew:
+        """
+        创建仅包含 Transcriber 的 Crew（Phase 4 RAG 两阶段流程第一步）。
+        """
+        return Crew(
+            agents=[self.transcriber()],
+            tasks=[self.transcription_task()],
+            process=Process.sequential,
+            verbose=True,
+        )
+
+    def create_summary_crew_with_context(self, rag_context: str) -> Crew:
+        """
+        创建带 RAG 上下文的 Summarizer+Filewriter Crew（两阶段流程第二步）。
+
+        summary_task 的 description 被动态增强，注入 RAG 检索结果。
+        """
+        enhanced_summary_task = Task(
+            description=f"""
+Analyze the following **pre-retrieved key passages** and create a "High-Value Content Report".
+
+**IMPORTANT**: The passages below have been intelligently selected from the full transcript
+using Hybrid Search (Dense + Sparse retrieval with RRF fusion) and are arranged in their
+original chronological order. The first and last passages are anchored (Head-Tail Pinning)
+to ensure you see the video's introduction and conclusion.
+
+---
+{rag_context}
+---
+
+**STEP 1: CLASSIFY THE CONTENT**
+First, determine the category of the video:
+- **Type A: Educational/Academic** (Lectures, Tutorials, Documentaries)
+- **Type B: Procedural/How-To** (Cooking, DIY, Software Tutorials)
+- **Type C: General/Lifestyle** (Vlogs, News, Reviews, Entertainment)
+
+**STEP 2: GENERATE THE REPORT BASED ON CATEGORY**
+
+**If Type A (Academic):**
+- Focus on **Learning Outcomes**.
+- Structure: "Core Concepts", "Logical Arguments", "Key Definitions", "Examples Used".
+- Goal: Replace the need to watch the lecture.
+
+**If Type B (How-To):**
+- Focus on **Actionable Steps**.
+- Structure: "Prerequisites/Ingredients", "Step-by-Step Guide", "Common Mistakes", "Pro Tips".
+- Goal: Help the user execute the task immediately.
+
+**If Type C (General/Lifestyle):**
+- Focus on **Highlights & Insights**.
+- Structure: "Main Talking Points", "Key Opinions/Arguments", "Best Moments/Quotes", "Takeaway".
+- Goal: Give a quick digest of what happened.
+
+**STEP 3: FINAL FORMATTING**
+Regardless of type, your output must be valid Markdown with:
+- A clear title indicating the Content Type detected.
+- **Bold** for key terms.
+- Bullet points for readability.
+""",
+            expected_output="A structured Markdown report that automatically adapts its section headers and depth based on whether the content is academic, procedural, or general.",
+            agent=self.summarizer(),
+        )
+
+        return Crew(
+            agents=[self.summarizer(), self.filewriter()],
+            tasks=[enhanced_summary_task, self.file_write_task()],
             process=Process.sequential,
             verbose=True,
         )
@@ -448,7 +531,7 @@ class VideoSummary():
             # The 'agents' list should ONLY contain the worker agents.
             # The manager is defined separately and should not be in this list.
             agents=[info_finder_agent],
-            tasks=[self.chat_task(), self.info_task()],
+            tasks=[self.chat_task()],
             process=Process.hierarchical,
             manager_agent=chat_agent_manager,
             verbose=False # Keep UI clean. Set to 2 to see delegation steps in your terminal.

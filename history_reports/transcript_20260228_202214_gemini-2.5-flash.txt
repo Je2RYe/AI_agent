@@ -1,0 +1,334 @@
+
+Hi, my name is Mark. For years I've wanted to make my very own 
+video games, using software like Unity. Unity is the powerful game engine behind 
+titles like Cuphead, Neon White, Tunic,  Outer Wilds, Hearthstone, Firewatch, 
+and even the Pokemon Diamond remake. But I've always found that lengthy, multi-part, 
+meandering tutorials just send me to sleep. I can't learn by watching someone else - I have 
+to get hands-on and figure things out for myself. And so last year I developed a 
+solution that actually works. It's a three-step technique where you: one 
+just learn the absolute basics of Unity. Then, two, cement those 
+lessons with simple exercises. And then, three, figure out 
+the rest as you go along. And it totally worked! In 
+the space of about a year,  I went from ripping off iPhone games to working 
+on my very own puzzle platformer about magnets. And I released an interactive video 
+essay that's had over 100,000 plays. But wait, I hear you say! How do you do 
+step one? How do you learn the basics,  when the software is so complicated to figure out? Well for me it was about writing down 
+a list of things I would need to know,  regardless of what game I was going to make. Things like how to make a character 
+appear and move them around the screen. How to make stuff spawn in and 
+then delete it again later. How to have collisions and game over 
+and animations and sound effects. Then I learned all that by hunting through 
+lengthy tutorials, reading the Unity docs,  Googling esoteric words, and 
+doing a lot of trial and error. And so the whole point of this 
+video is to save you that hassle. This video is the tutorial I wish 
+I had when I was learning Unity. So in the next 40 minutes we're going 
+to use the engine to make Flappy Bird. Not because we want to make Flappy 
+Bird, but because in order to remake  this addictive iPhone game, we'll need to 
+learn basically everything I just listed,  from spawning objects to getting game overs. This tutorial will cover every step 
+of the way from downloading Unity,  to understanding the UI, to writing your 
+very first line of programming code,  to building a game that you 
+can share with your friends. And then, when the tutorial is 
+over, I'll share some concrete  next steps that you can take in order to 
+continue learning the rest by yourself. Sound good? Then let's get started. Okay, let's start by getting 
+Unity from the website. Download and install the Unity Hub. And then you'll need to make a 
+free account to actually use it. Once that's done, you'll be asked to install the 
+Unity Editor - I'm using version 2021.3 for this  tutorial, if you're watching a million years in 
+the future and wondering why things are different. Let's pretend I have fast internet - Neeooowwwwmm. We're not quite done yet. Under installs, hit the cog icon on 
+the Unity Editor and pick modules. You'll see that Microsoft Visual 
+Studio has been ticked - this is  the software we'll use to write programming code. So hit continue. And install Visual Studio. On this screen, scroll down and 
+tick game development with Unity,  and untick Unity Hub, because we already have it. Neeooowwwwmm. We don't need to make an account 
+to use Visual Studio, so skip that. And don't bother loading it, we'll open it later. Okay, that's all done now. So in Unity Hub, pick new project. Choose all templates. And use 2D, Core. This is an empty project, with a few 
+configurations to make it suitable for 2D games. Give your project a name, hit 
+create, and let's get game makin'. In step one, we're going to become familiar 
+with the default Unity user interface. And as we explore the different panels, 
+we'll make the bird appear on screen. Right. So this is the default screen layout for 
+Unity, and it's split into four panels. First of all, down here, is the Project panel. This will contain everything that 
+is in our game - like sprites,  sound effects, scripts, tiles, fonts, and so on. Some of this stuff will be 
+made in Unity as we go along. But we can also just drag and drop 
+files from elsewhere on our computer. Like, I've made some sprites for the bird and the  pipe in Photoshop and I'm going to 
+import them into my project like so. I'd recommend you make your own 
+- that's always more fun - but  if you have zero artistic ability then 
+check the description for these assets. The next panel is the hierarchy. This contains all of the stuff 
+that's in the current scene - which,  in most games, will be a level. We're going to start by making the bird, 
+so right click and choose Create Empty. This has made an empty GameObject... so what's that? Well, a GameObject is essentially 
+an invisible container. It has a position in space, 
+a rotation, and a scale. Then, you can fill that container with 
+components - to add extra features. For example, if we add a 
+Sprite Renderer component,  we can slap the bird image onto the GameObject. Absolutely everything in our level will be 
+a GameObject with components - the bird,  the pipes, even the user interface and the camera. All of this magic happens in the third panel, the 
+Inspector - which is for messing with GameObjects. So, once we've selected our new,  empty GameObject we can put a name in 
+the top field - let's call it Bird. And we can see and change the GameObject's 
+position, rotation, and scale, under Transform. We can now press Add Component, pick 
+Rendering, and pick Sprite Renderer. To make this work, we need to fill in 
+the sprite field - so just drag the  bird image from the project panel into 
+the field and viola, we have graphics! That will, of course, show up in the 
+fourth and final panel, the scene view. Here we can see what's in our current scene, and,  if you want, you can use these tools to 
+move stuff around, scale it, and so on. This section has an extra tab for game view,  which shows us what the game will look like 
+from the main camera when it's running. Also, from this dropdown, we can set 
+a resolution or aspect ratio to get  a better idea of what it will look like when 
+played - so I'm going to choose 1920 by 1080. Oof, the bird takes up way too much space. We could scale it down, but let's 
+actually just zoom out the camera. Like I said before, the camera itself 
+is a GameObject in the hierarchy. And it has a camera component 
+with stats we can mess with. By changing the size, we can zoom out. I'm also going to change the background colour. Lovely. We can now press the play 
+button up here to start... the world's most boring game. Okay, let's make it a bit more exciting. A quick recap. Unity has four panels by default. Project holds all the stuff in our game. Hierarchy lists all of the 
+GameObjects in the current level. Inspector lets us see and 
+change those GameObjects. And we can see the level in the scene view. And a GameObject is an invisible container that we 
+can fill with components, like a sprite renderer. In step two we're going to use 
+more components to make the bird  into a physics object that is affected by gravity. And then we're going to write some programming  code to make the bird fly up 
+when we press the space bar. So let's add another component 
+to our bird: a Rigidbody 2D. This turns our bird into a 
+physics object, with gravity. So when we hit play, the bird 
+drops, and falls off the screen. Cool. We'll also want this bird to be able to interact 
+with other objects, so let's add a collider. A circle collider 2D. Back in scene view we can see 
+the collider as a green outline. It's a bit off-center for me, so 
+I'll use the offset to move it. And, a little game design trick - if we make 
+the collider a bit smaller than the image,  it will let the player get through pipes 
+even if they juuust touched the edge. It gives the game a bit of leniency 
+and makes it feel more fair. The final thing to add right now: a script. This essentially lets us make our 
+own custom component - but we'll  have to write it ourself using programming code. Choose New Script from the components list. And call it BirdScript. Once it's loaded, double click 
+the script field to open it up. This will open the file in Visual 
+Studio, which we installed earlier. So, welcome to programming! 
+It's not too scary, promise. We'll take it slow. We're writing in C sharp, 
+that's the programming language. And the only thing to worry about right now 
+is these two chunks here: start and update. Start is for any code that will run 
+as soon as this script is enabled. And it runs precisely once. Update runs constantly 
+while the script is enabled. And it will fire off every line 
+of code, every single frame. Over and over and over again. So the main thing we're going to be doing 
+with code right now is - well, if we go back  to Unity - see these numbers and text fields in 
+the components? And how we can change them in  the Unity editor? We're just going to write code 
+to change these stats while the game is running. Just as a dumb example, and 
+we'll delete this in a second. In start, we can type gameObject 
+- that refers to this bit up here. And then a dot. You'll see a list appear, and many of the 
+items refer to stuff back in the Inspector,  like isStatic, tag, layer, and name. So let's pick name. Then write an equals sign. And in quotes, give our bird a name. Finally, we must always use a 
+semi-colon to mark the end of a command. And we must always save the script
+before we go back to Unity. Now, when we run the game... the name of the GameObject has been changed. Nice. Okay, delete that code. That was just for sillies - but it shows 
+us how we can use code to talk to the game. We can write a command by choosing someone to 
+talk to - in this game, the GameObject - and  then a topic of conversation - its name - and 
+then a command - change it to Bob Birdington. We'll be doing this a lot. So what we actually want to do is... in the Rigidbody 2D's component, under info, 
+we'll see a greyed-out field for velocity. And we want to write some code to add upward 
+velocity to the bird to make it fly into the air. The problem is... initially, a script can only talk to the 
+GameObject's top bit and the transform. Right now, this script is completely 
+unaware of the other components. So we need to sort that out first. We need to make a special slot on this script for  a Rigidbody2D - so we can then 
+talk to it and send it commands. This is called a reference. We're going to create the reference up here, 
+between the class name and the start function. We're going to write public 
+Rigidbody2D myRigidbody. So we now have a slot to store a Rigidbody2D. And we have a name that we 
+can refer to - to make sure  we're talking about this specific Rigidbody2D. And because we made it public, it means we 
+can access this slot from outside the script. So, if we save. And go back to Unity, we'll see that the script 
+component now has a field for a Rigidbody2D. We can drag the component 
+into that slot, and viola. We have established a line of communication 
+between the script and the Rigidbody. Okay, back in Visual Studio. In update, we can type myRigidbody. Then dot. And now look at all the things we can talk about. Angular drag, gravity scale, mass - these 
+are all properties on the component. The one we want is velocity. We want to set this to a new number, and so, just 
+like before with the name, we'll write an equals. Now what we're actually writing here 
+is a vector, which is two numbers,  to represent a position in 2D space. And in this case, it's used to represent 
+a direction for the bird to travel. We want the bird to go straight up, so 
+zero, comma one would be a good one. I'm just going to use Vector2.up, which 
+a built-in shorthand for zero comma one. And to give it a bit more power, I'm 
+going to multiply that vector by a number. Say, 10, which should send 
+the bird flying up in the sky. Now, like I said before, any code in update 
+will run, over and over again, every frame. So if we save the script and hit play in Unity... off goes our bird. Bye!! That's not what we want. We want this to only happen when 
+the player hits the space bar. So it's time to use the most fundamental 
+bit of programming code: the if statement. An if statement is like a gate. You can surround some code with a fence, and 
+every frame that code will be completely ignored. Unless, the game meets some specific 
+conditions that are written on the 
+gate - in which case the gate is open, 
+and the code is read and executed. So we want to say "if the player hits 
+the space bar, then add upward velocity". To do this... we can write if, and then in 
+brackets we can write the condition. This time we're not talking to a component,  we're talking to Unity itself - 
+specifically its input system. So we'll write Input. Then we can pick GetKeyDown, 
+and in brackets, KeyCode.Space. This asks Unity if the space bar 
+has been pressed on this frame. And then we'll finish with equals, equals true. A quick note on equals signs - 
+we use one to make the thing on 
+the left be the same as the thing on the right. And we use two if we're just checking if the thing 
+on the left is the same as the thing on the right. Cool? Anyway. So this code says... if the space bar has just been pressed, then... and then we'll use curly brackets - these are the 
+fence in our little analogy - 
+and put the flap code in here. So, now in update - every frame the game 
+will go to the gate and be asked "hey,  has the spacebar just been pressed?" If yes, 
+the code will fire and the bird will flap. If not, it will skip the code in the 
+curly brackets and try again next frame. So - save the script and go back to Unity. We can now hit play and tada: the 
+bird goes up when we press space. We have now created a character 
+and made it react to input. This is a video game. Hooray! However, it feels like trash. The flap isn't right, and it doesn't 
+feel like the original iPhone game. So we could change this number. Save. Open Unity. Run the game. Not quite right. Stop. Change the number. Save. But that's slow and dumb. Let's do something smarter. First, we're going to make a variable. Let's go back to the top of the script 
+and under our reference to the Rigidbody,  let's make a public float called flapstrength. A float is a floating point number - basically 
+a number that can have a decimal place. And then back in our update code, we'll multiply 
+the vector2.up by flapstrength, instead of 10. Now, back in Unity, you'll see that the script 
+component has a new field: flapStrength. And we can change that whenever we 
+want to make the game feel different. We can even change it during the 
+game, but note that anything you  change while the game is running 
+won't save when you press stop. This means you can play with 
+values to your heart's content  without worrying about screwing up your game. So, if we mess with the flapStrength, and 
+also the gravity scale on the Rigidbody,  we'll hopefully get to something that feels good. Ah, changing numbers back and 
+forth: honey, that's game design! Recap time. We can use code to change the properties 
+of a component, while the game is running. A script cannot talk to the other 
+components on the gameobject, by default. You have to make a line of communication by 
+storing a reference to that specific component. We create the reference in code, and then 
+fill it in Unity by dragging and dropping. Code in start runs once, when 
+the script comes into existence. Code in update runs 
+continuously, every single frame. But, we can use if statements to skip 
+some code, unless a condition is met. And we can use public variables to change certain  values in Unity's inspector - 
+even while the game is running. Okay, so the secret to Flappy 
+Bird is that while it looks  like a bird is flapping along through 
+a world of pipes - it's actually not. The bird stays completely still and 
+the pipes move across the screen. So in step three we're going to 
+make pipes spawn into the world,  move across the screen, 
+and then delete themselves. We'll start by making the object we want to spawn. This will be two pipes which move across 
+the screen, from the left to right. Let's make another GameObject called pipe. Put it exactly on the bird for 
+now, to get the sizing right. And then we'll make another object 
+within this one, called top pipe. This is a child of the first GameObject's parent. This way we can nest multiple GameObjects,  and move all of them at once 
+just by moving the parent. So let's repeat what we did for the bird. Add a sprite renderer for the pipe image. And add a collider - a Box Collider 2D, this time. We don't need a RigidBody because it's 
+not going to be affected by physics. We can then move it up above the bird 
+- but keep the X position as zero. Finally, we can duplicate 
+this whole top pipe object. Call it bottom pipe. And flip it upside down by 
+changing the Y scale to minus one. Then move it down below the bird. As you can see, if we mess with the pipe 
+parent GameObject, both pipes move, scale,  and rotate along with it, with 
+the parent as the pivot point. So let's add a script to this parent's 
+object to make it move across the screen. We'll start by creating a variable for moveSpeed. If we give it a number here, it will 
+fill this as the default value in Unity. But we can always change it there, later. Then we'll write code to 
+move the object, in update. Now it would be lovely if we could 
+just type transform.position.x,  and change this number directly - but, no, boo, 
+you have to change the entire Vector in one go. Oh, and this time we're gonna have to use Vector3,  instead of Vector2, because the 
+transform has three numbers. Even though we're making our game in 2D, 
+Unity is still fundamentally a 3D engine  and so it's keeping track of the 
+object's depth with the Z value. So, here's what we'll do. We'll take the current transform.position. And then equals. We want to add to its current position, 
+so write transform.position again. And then plus. And finally, in brackets, we'll 
+do Vector3.left * moveSpeed. Back in Unity, press play and vroooof. That's way too fast. Now, you might think that you could just change  this moveSpeed variable down to 
+a really small number like 0.001. And that will work - but that's 
+not actually the problem here. You see, code in update just 
+runs as often as it can. In fact, if we check the stats in Game view,  we'll see the game is running 
+at over 1,000 frames per second. Heh, sorry PlayStation 5. 120 fps? Pfft, that's got nothing on Flappy Bird. And the real problem is that the game may run 
+at different speeds on different computers,  and we don't want the pipe to move 
+faster or slower depending on your rig. Real games have actually made this mistake - 
+in Dark Souls 2, weapon durability was once  tied to frame rate, so your swords would break 
+twice as fast at 60 FPS, compared to 30 FPS. That was a whoopsie. Luckily, it's a pretty easy fix. We just multiply it by Time.deltaTime. This ensures the multiplication happens 
+the same, no matter the frame rate. We didn't need it for the velocity 
+code because physics runs on its  own little clock, but otherwise we will need it. if you want to know more - about this, or anything 
+really, the Unity docs are a good place to check. You'll find info and sample code. Okay, now with that fix in place, our 
+pipe moves smoothly across the screen. Lovely. Next, we want to create a system that 
+will continually spawn new pipes. To start, take the parent GameObject from 
+the hierarchy and drag it into your project. This creates a prefabricated GameObject. Or prefab. This is like a blueprint for a 
+GameObject and we can create new  versions of this entire GameObject- with all 
+its children, components, and properties. Oh, and before we move on, we can delete 
+the original in our hierarchy now. Bye bye. Let's make a new GameObject called Pipe Spawner. We'll put it just to the right of the camera. And we'll make a script for it. The purpose of this script is to spawn new 
+versions of the pipe prefab every few seconds. And because the pipe already 
+has code to move left,  the pipe will automatically move across 
+the screen as soon as it spawns in. We're going to write some code to 
+spawn that prefab we just made. So we'll start by making 
+a reference to the prefab. Up here, we'll type Public GameObject pipe. Then in Unity, we'll use the same drag and 
+drop method to fill the slot, but this time,  instead of a component, we'll drag 
+the prefab from the project panel. Now,  Unity has a nice built-in method 
+for spawning new GameObjects. We'll type Instantiate, 
+and then open the brackets. In here, the command is 
+asking for some extra details. we can actually flip through these to find 
+different, I dunno, recipes? I guess? Number  4 looks good - it will create an object 
+at a specified position and rotation. So, for the GameObject, we can type pipe. For position we can just type transform.position to get the 
+position of the object holding this script. That will make it spawn on top of the spawner. And for rotation, let's just 
+use transform.rotation so,  again, it's the same as the spawner. Let's run it and oh my god, 
+that's not what we want. Spawning works great, but they're 
+coming out every single frame - and  we want them to come out on a 
+nice interval that we can control. So, back to Visual Studio. What we're going to do now is to 
+write some code to make a timer. this will count up for a 
+specified number of seconds,  run some code, and then start the count again. To do this, we'll need to make a couple variables. A spawnRate is how many seconds 
+it should be between spawns. And then a timer is the number that counts up. We can make this one private as we won't be 
+changing it in the editor or anywhere else. In update, we'll do another if statement. This time, if the timer is 
+less than the spawnRate,  then we want to make the timer count up by one. So we'll take the timer as it currently 
+is, and add Time.deltaTime to it. This creates a number that counts up every frame,  and works the same no matter what 
+your computer's frame rate is. We can actually shorten this by changing it to +=, 
+but, don't feel like you need to make your code as  short as humanly possible just to 
+avoid getting sniffy YouTube comments. If timer = timer + is easier to read 
+and grasp, then that's absolutely fine. You can always swap to the other version 
+in the future when you feel more confident. Now, before I said an if statement is like a gate. And we can add another gate 
+to the side of it, with else. This means, if the condition isn't met, then 
+skip the code - and do the code in else, instead. So we'll put the spawn code in here, 
+and also reset the timer to zero. So now, every frame, it asks if the 
+timer is less than the spawn rate. If it is, then count the timer up. If it's not - i.e. the timer has actually met or exceeded the spawn 
+rate, then spawn a pipe and start the timer again. Put this in Unity and - pretty good. I'm happy with that. The only problem is... we have to wait ages for the first pipe to spawn. It would be good if this 
+came out immediately, right? Now, we could copy and paste the spawn code 
+into start, so it happens once in start. And then happens over and over in update. But that's a bad idea. You should generally try to avoid having the 
+same, or even similar code in multiple places. What happens if we want to change how the spawn  works? We'll have to find 
+and change it everywhere. No good. Instead, we can put the spawn code in a new 
+function, and then just run that function. So here, below update - but above 
+the final curly bracket - we'll  make a function called void spawnPipe(). And then cut and paste the 
+Instantiate code into there. Now we can just write spawnPipe, with 
+empty brackets, in both update and start. This will run all the code in that 
+function when these lines are executed. And with that done, it will make 
+a pipe as soon as the game begins,  and will make new pipes every 
+time the timer maxes out. Perfect. However - this is a pretty boring game, right? 
+The pipes always come out in the middle. we want them to come out at random heights. So, remember that when we 
+wrote the instantiate code,  we had to pick a position for the object 
+to appear? We'll change that value. Right now the pipes always spawn on 
+the same position as the spawner. We want the X value to be the same... but for Y, we want to pick a random point 
+somewhere above or below the spawner. So let's create a public variable 
+for a heightOffset, maybe 10. And then we'll make a float called lowestPoint. Because we're making this variable inside the 
+function, rather than at the top of the script,  it means it can only be used within the function. But, also, it means we can 
+set it by doing a calculation. so we'll do equals 
+transform.position.y - heightOffset. And then we'll make another one for highestPoint, 
+but this time it's plus heightOffset. That gets us these two numbers. Then we'll replace the transform.position 
+in our Instantiate code. We're gonna write new Vector3,  we have to write that whenever we're 
+specifying our own numbers for a vector. and then in brackets we'll specify the X, 
+Y, and Z values as three different floats. For X, we want this to be the same as the 
+spawner, so we'll do transform.position.x. But for Y, we can do Random.Range. And in the brackets for that, we can supply 
+a minimum and maximum point to pick from. That's lowestPoint and highestPoint. Then a 0 for Z. And close the brackets. Back in Unity.... nice! The pipes will spawn 
+anywhere between these two numbers. Oh, one last thing. Every time these pipes spawn 
+they'll appear and move left.... forever. Which isn't great practice - they're 
+off screen and doing absolutely nothing,  and yet they're still in memory 
+and running code every frame. And if too many spawn they'll 
+start to spill out the side of  your monitor and make a right mess of your desk. So let's fix that. Now we could make a timer, and 
+delete the pipe after a few seconds. But instead, we'll check 
+the X position of the pipe,  and delete it if it goes past a certain point. We'll borrow the bird to find out the 
+X coordinate of the left of the screen. Looks about minus 45. In the pipe move script, we'll 
+add a float for a deadzone. -45. And then a simple if statement - if 
+transform.position.x is less than deadZone,  then destroy the GameObject 
+that holds this script. Run it in Unity and, bam, they're dead. Let's do one more thing, 
+just as a teachable moment. Just before the destroy line, let's write 
+Debug.Log, and in brackets, Pipe Deleted. Then, back in Unity, you'll see one 
+other panel I skipped during the UI  demo - it's a tab next to project, called console. Then when we run the game... every time a pipe is deleted, our 
+message is sent to the console. This is a wonderfully useful 
+way to debug our code, because  we can find out exactly what the code is up to. Recap time! GameObjects can be turned into prefabs,  by dragging them from the hierarchy, 
+and dropping them into the project. You can then drag these into scenes - I use  prefabs to create levels in 
+my puzzle game, for example. Or you can make a spawner to 
+instantiate new ones during the game. Timers are a great way to make 
+code happen on a certain interval,  but always use Time.deltaTime to keep things 
+consistent across different computers. If statements can have an else gate, to 
+make code fire if the condition is not met. You can also have else if, to 
+make more complicated gates. And you should try to delete GameObjects if 
+they're no longer needed, to free up memory. Okay, our next step is to keep 
+track of the player's score,  and show it to the player on the user interface. Then, we want the score to go up by one, 
+every time the bird goes through the pipes. So, remember that a GameObject doesn't 
+have to be a physical thing in your game  world like a character or an enemy - it 
+can be a completely invisible manager  that's just keeping track of critical 
+data like health, or time, or score. And then, we can make that information 
+visible to the player, using a user interface. So let's start by making the UI. Like everything else, it's a 
+GameObject in the hierarchy. This time go down to UI and pick 
+text - which may be under legacy. We'll need to zoom really far out on 
+the scene view to actually see the UI. To make sure the UI looks the same on every 
+device, we'll pick this new canvas GameObject  and set the canvas scaler component's 
+UI scale to scale with screen size,  and choose a sensible reference 
+resolution - I'm gonna use 1080p again. We can then move our text around. You'll notice that UI has a rect 
+transform, rather than a normal transform. The most important thing to 
+note is that you don't really  want to mess with scale of elements - 
+instead, change the width and height. I'll then increase the font size 
+and set the default text to 0. And then check it all looks nice on the game view. Okay, now we want to make a script 
+that will store the player's score,  and change the number on the UI to that score. We'll make a GameObject called Logic Manager. And we'll give it a script. This script is going to keep track of high 
+level information like the player's score. And it will have various meta-level 
+functions that we can run. So we'll delete start and update, 
+we don't need them in this script. We can always add them back 
+later if we change our mind. We want to store a number for the player's score. This time, we don't want a float 
+because we only ever want round numbers. So let's do an int, instead. That's an integer. No decimal places. And because we want to update the UI text we just 
+made we will, as always, have to make a reference. Except... text doesn't seem to be a thing? Ah, well. By default, a script only loads 
+in the stuff you need for basic  Unity functionality - but if we 
+go up to the top and type using  UnityEngine.UI;, we can now access more 
+functionality - in this case, UI stuff. Now we can make a reference to text. We'll need to drag the text component 
+into this field back in Unity. Because we're referencing a component 
+on another GameObject - the text on the  UI - the best way to do this is to just 
+drag the whole GameObject into our slot. This will automatically find 
+the text component for us. Handy. So now we want to make a function. And we'll call it addScore. And because we're going to run this function 
+from other scripts, we'll set it to public void. This function needs to do two things. Add one to the player's score. Easy enough, we know how to do that now. And change the text on the UI to be this number. Oh, the text box is looking 
+for a string - a sequences  of characters - and our score is an integer. They look identical to us 
+humans, but robots are fussy. Easily fixed, mind you, by adding 
+.toString() to the game score. To make sure this works, let's give ourselves 
+the power to run this function from Unity itself. All we need to do is write ContextMenu, 
+and a name, above the function. Now, in Unity, while the game is running, hit the 
+little dots on this script and pick the function. Nice! This sort of thing comes 
+in real handy for testing. Okay, so now that we know the function runs,  we specifically want to run it when 
+the bird goes between the pipes. And the way to do this is collisions. Now if two objects have colliders, they will 
+bash into each other - in fact, in our game,  the bird will already crash into the pipes 
+because we've added colliders to both. However - you can also have 
+invisible colliders, called triggers. They don't create an actual collision,  

@@ -1,0 +1,3 @@
+timestamp,model_used,report_path,user_feedback_score,user_feedback_text,metrics_fc,metrics_cp,metrics_ch,metrics_weighted_score,user_action
+2026-02-28T22:15:53.939187,gemini-2.5-flash,history_reports\summary_20260228_221252_gemini-2.5-flash.txt,8,,0.703125,0.828472222222222,0.6443210691213608,0.7256,helpful
+2026-02-28T22:18:11.540828,gemini-2.5-flash,history_reports\summary_20260228_221252_gemini-2.5-flash.txt,8,,0.703125,0.828472222222222,0.6443210691213608,0.7256,helpful

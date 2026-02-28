@@ -1,0 +1,107 @@
+```text
+# High-Value Content Report: Secure OpenClaw (Claudebot) Setup
+
+This comprehensive guide focuses on setting up OpenClaw (Claudebot) with paramount security, emphasizing best practices to prevent common vulnerabilities that could lead to data breaches, API key theft, and unauthorized system access.
+
+---
+
+#### Prerequisites & Essential Tools:
+
+*   **Understanding OpenClaw:** Not an AI itself, but an open-source orchestration layer that calls various Large Language Models (LLMs) like GPT or Anthropic.
+*   **Virtual Private Server (VPS):** A cloud-hosted computer (e.g., Hostinger KVM2 plan recommended).
+*   **Tailscale Account:** A free virtual private network (VPN) service for secure device tunneling.
+*   **SSH Client:** Terminal (Mac/Linux) or Windows Terminal (Windows) for remote server access.
+*   **Hostinger Account:** Or any preferred VPS provider.
+*   **LLM Provider Account:** OpenAI or Anthropic (for API keys or existing subscriptions).
+*   **Telegram Account:** For secure chat channel integration.
+
+---
+
+#### Step-by-Step Secure Setup Guide:
+
+1.  **Acquire and Configure Your Virtual Private Server (VPS):**
+    *   **Choose a Provider:** Hostinger KVM2 plan is suggested for affordability and features.
+    *   **Location:** Select a server location with low latency relative to your geographic area.
+    *   **Operating System:** Choose a **plain operating system** like **Debian 13** (or Ubuntu), **avoiding the one-click OpenClaw deploy** for advanced security.
+    *   **Root Password:** Generate and securely store a **strong, random root password**.
+    *   **Docker:** Do **NOT** enable Docker during the initial VPS setup.
+    *   **Provisioning:** Wait approximately 10 minutes for the VPS to initialize.
+
+2.  **Establish Secure SSH Access with Tailscale VPN:**
+    *   **Initial Root SSH Login:** From your local machine's terminal, use `ssh root@<YOUR_VPS_IP_ADDRESS>`. Accept the host key and paste your root password (input will be invisible).
+    *   **Install Tailscale on VPS:** Run `curl -fsl https://tailscale.com/install.sh | sh`.
+    *   **Start Tailscale SSH Service:** Execute `tailscale up --ssh`.
+    *   **Authenticate Tailscale:** Copy the provided URL from the terminal, paste it into your local browser, sign in with your **most secure account**, and connect the device.
+    *   **Install Tailscale Locally:** Download and install the Tailscale client for your local operating system. Sign in with the **same account** to connect your local machine to the Tailscale VPN.
+    *   **Verify Connection:** On the VPS terminal, run `tailscale status` to confirm your local device is connected.
+
+3.  **Harden SSH Configuration for Enhanced Security:**
+    *   **Edit SSH Daemon Config:** Open the SSH configuration file using `nano /etc/ssh/sshd_config`.
+    *   **Set Listen Address:** Uncomment `ListenAddress` and change `0.0.0.0` to your **Tailscale IP address** (found in your Tailscale admin console, typically starts with `100.`).
+    *   **Disable Password Authentication:** Locate `PasswordAuthentication` and change its value to `no`.
+    *   **Disable Root Login:** Find `PermitRootLogin` and change its value to `no`.
+    *   **Save and Exit:** Press `Ctrl+S` (or `Cmd+S` on Mac) to save, then `Ctrl+X` to exit the editor.
+
+4.  **Create a Non-Root User with Sudo Privileges:**
+    *   **Add New User:** Execute `adduser <your_username>` (e.g., `adduser tim`). Set a **strong password, ideally different from the root password**. Press Enter for all other prompts, then `Y` to confirm.
+    *   **Grant Sudo Access:** Run `usermod -aG sudo <your_username>` to add the new user to the sudo group.
+    *   **Verify Sudo:** Switch to the new user with `su <your_username>`, then run `sudo whoami`. Enter the **new user's password**. The output should be `root`, confirming sudo privileges.
+    *   **Log Out:** Type `logout` to return to the root user session.
+
+5.  **Apply Changes and Test Secure Login:**
+    *   **Restart SSH Service:** On the root session, execute `systemctl restart ssh`.
+    *   **Log Out of Root:** Type `logout` to fully disconnect.
+    *   **Test Public IP Access (Should Fail):** Attempt to SSH to your VPS's public IP as `root`. The connection should be refused, confirming root login is disabled from public internet.
+    *   **Test Secure Tailscale Access:**
+        *   Ensure your local Tailscale client is **connected**.
+        *   SSH using your new user and the Tailscale IP: `ssh <your_username>@<YOUR_TAILSCALE_IP_ADDRESS>`. This should connect without a password due to Tailscale's trusted device authentication.
+        *   **Verify Disconnection:** Disconnect Tailscale locally, attempt to SSH (should fail). Reconnect Tailscale, attempt SSH (should succeed).
+
+6.  **Install and Configure OpenClaw:**
+    *   **Install OpenClaw:** With your secure SSH session open, navigate to the OpenClaw website, select "Mac OS/Linux," copy the one-liner installation command, and paste it into your terminal. (You may be prompted for the root password during this process).
+    *   **OpenClaw Setup Prompts:**
+        *   Confirm security settings (select `yes`).
+        *   Choose `manual` configuration.
+        *   Select `local gateway`.
+        *   Keep the default workspace directory.
+        *   **Model Configuration:**
+            *   **Recommended (OpenAI):** Use **Codeex** for cost-effectiveness. The setup will provide a URL; paste it into your browser, authenticate, and copy the `code` parameter from the redirect URL (the string between `code=` and `&scope`). Paste this code back into the terminal.
+            *   *Alternative:* Use API keys for OpenAI or Anthropic (can be more expensive).
+        *   Keep default gateway port.
+        *   Set `gateway bind loop back`.
+        *   Choose `token authentication`.
+        *   Crucially, keep **Tailscale exposure OFF**.
+        *   Leave the gateway token blank for auto-generation.
+    *   **Configure Chat Channels (Telegram Recommended):**
+        *   Select Telegram in the setup.
+        *   Open Telegram Desktop, search for `@BotFather` (verified account).
+        *   Type `/newbot`, provide a bot name (e.g., `dev`), and a username ending in `_bot` (e.g., `dev123_bot`).
+        *   Copy the generated **bot token** and paste it into the OpenClaw setup terminal.
+
+---
+
+#### Critical Security Warnings & Common Pitfalls:
+
+*   **Risk of Insecure Setup:** Many quick guides lead to severe vulnerabilities; avoid generic 10-minute tutorials.
+*   **Avoid Self-Hosting on Personal Devices:** Running OpenClaw on your main computer or a dedicated physical device (e.g., Mac Mini) exposes your home network, is susceptible to physical damage/theft, and requires constant uptime.
+*   **Unauthenticated Cloud Servers:** Forgetting to disable root access, lack of strong passwords, or absence of VPN tunnels leaves your server open to attacks.
+*   **Public Exposure:** Without VPN tunneling and proper SSH configuration, your server's public IP is vulnerable to scanning, DDoS attacks, and brute-force attempts.
+*   **High API Key Costs:** Directly using API keys for LLMs can become "insanely expensive" very quickly.
+*   **Incorrect Tailscale Exposure:** Do **NOT** enable Tailscale exposure during OpenClaw gateway setup; keep it OFF.
+
+---
+
+#### Key Best Practices & Pro Tips:
+
+*   **Leverage VPS for Security & Reliability:** VPS offers physical security, backups, high uptime, faster internet, and isolates OpenClaw from your personal network.
+*   **Mandatory VPN Tunneling (Tailscale):** Crucial for creating a private, encrypted connection, allowing only authorized devices to access your server.
+*   **Implement IP-Level Restrictions:** Ensures only your authenticated devices can communicate with Claudebot.
+*   **Mitigate Prompt Injection Attacks:** Be aware of this vulnerability and configure OpenClaw settings to reduce risk.
+*   **Utilize Sandboxing & API Limits:** Essential for controlling costs and preventing unintended access to sensitive data or services.
+*   **Disable Root Login & Create a Non-Root User:** A fundamental security practice to prevent direct attacks on the highest privilege account.
+*   **Use Strong, Unique Passwords:** Generate random, complex passwords for both root and your new user account.
+*   **Secure Tailscale Authentication:** Use your most secure email/account for Tailscale login.
+*   **Cost-Effective Model Access:** Prefer using Codeex with an existing OpenAI subscription over direct API keys to manage expenses.
+*   **Secure Chat Channel Choice:** Telegram is recommended over alternatives like WhatsApp for bot interaction due to its security features.
+*   **Multi-Device Access:** Install and authenticate Tailscale on all devices (laptops, phones) from which you intend to administer the VPS.
+```
